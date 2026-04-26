@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Menú Bambú</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Josefin+Sans:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-light: #eef3e6;
+    --bg-mid: #c8d9b0;
+    --green: #3a6b35;
+    --dark: #1e3d1a;
+    --gold: #b8960c;
+    --cream: #f5f0e8;
+    --text: #2a4a25;
+    --shadow: 0 4px 24px rgba(30,61,26,0.13);
+    --radius: 16px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { height:100%; overflow:hidden; }
+  body { font-family:'Josefin Sans',sans-serif; background:var(--cream); color:var(--text); }
+
+  .screen { display:none; height:100vh; flex-direction:column; animation:fadeIn .35s ease; overflow:hidden; }
+  .screen.active { display:flex; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+
+  #home {
+    background: linear-gradient(155deg,#162e13 0%,#2a5424 50%,#3a6b35 100%);
+    align-items:center; justify-content:center; text-align:center;
+    position:relative; overflow:hidden;
+  }
+  .bamboo-bg {
+    position:absolute; inset:0; opacity:.07;
+    background-image: repeating-linear-gradient(90deg, transparent, transparent 38px, #fff 38px, #fff 42px),
+                      repeating-linear-gradient(0deg, transparent, transparent 28px, #fff2 28px, #fff2 29px);
+  }
+  .home-inner { position:relative; z-index:1; padding:40px 28px; width:100%; max-width:400px; }
+  .home-logo { margin-bottom:20px; }
+  .home-badge {
+    display:inline-block; background:rgba(184,150,12,.2); border:1px solid var(--gold);
+    color:#e8c84a; font-size:10px; letter-spacing:3px; text-transform:uppercase;
+    padding:5px 16px; border-radius:20px; margin-bottom:18px;
+  }
+  .home-title {
+    font-family:'Playfair Display',serif; font-size:clamp(52px,13vw,84px);
+    color:#fff; line-height:1; letter-spacing:-1px;
+    text-shadow:0 4px 30px rgba(0,0,0,.4); margin-bottom:6px;
+  }
+  .home-title span { color:#c8e88a; }
+  .home-sub { font-family:'Lora',serif; font-style:italic; color:rgba(255,255,255,.6); font-size:14px; letter-spacing:1px; margin-bottom:44px; }
+  .home-nav { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .hnb {
+    background:rgba(255,255,255,.09); border:1.5px solid rgba(255,255,255,.18);
+    color:#fff; padding:20px 12px; border-radius:18px; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    transition:all .22s; backdrop-filter:blur(6px);
+  }
+  .hnb:active { background:rgba(255,255,255,.2); transform:scale(.97); }
+  .hnb svg { width:28px; height:28px; }
+  .hnb span { font-size:11px; letter-spacing:1.5px; text-transform:uppercase; font-weight:600; }
+
+  .ph {
+    background:var(--dark); display:flex; align-items:center; gap:12px;
+    padding:12px 16px; flex-shrink:0; box-shadow:0 2px 10px rgba(0,0,0,.25);
+  }
+  .back {
+    background:rgba(255,255,255,.1); border:none; color:#fff;
+    width:36px; height:36px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .2s;
+  }
+  .back:active { background:rgba(255,255,255,.22); }
+  .ph h1 { font-family:'Playfair Display',serif; color:#fff; font-size:20px; flex:1; }
+  .ph h1 em { color:#c8e88a; font-style:normal; }
+
+  .scroll { flex:1; overflow-y:auto; overscroll-behavior:contain; }
+  .scroll::-webkit-scrollbar { width:0; }
+
+  #reservas .scroll {
+    display:flex; align-items:center; justify-content:center;
+    padding:24px; background:linear-gradient(160deg,#e8eedf,#f5f0e8);
+    min-height:0;
+  }
+  .res-card { background:#fff; border-radius:24px; box-shadow:var(--shadow); padding:32px 24px; max-width:360px; width:100%; text-align:center; }
+  .res-card svg { width:52px; height:52px; margin-bottom:14px; }
+  .res-card h2 { font-family:'Playfair Display',serif; font-size:26px; color:var(--dark); margin-bottom:8px; }
+  .res-card p { font-family:'Lora',serif; font-style:italic; color:#6a8a60; font-size:13px; line-height:1.65; margin-bottom:24px; }
+  .wa-btn {
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    background:#25d366; color:#fff; border:none; border-radius:50px;
+    padding:15px 24px; font-family:'Josefin Sans',sans-serif;
+    font-size:14px; font-weight:600; letter-spacing:1px; cursor:pointer;
+    text-decoration:none; width:100%; transition:all .2s;
+    box-shadow:0 4px 18px rgba(37,211,102,.3);
+  }
+  .wa-btn:active { background:#1ebe5d; transform:scale(.98); }
+  .wa-btn svg { width:20px; height:20px; flex-shrink:0; }
+  .res-note { margin-top:16px; font-size:11px; color:#9aad8a; letter-spacing:.5px; }
+  .res-hours { margin-top:22px; background:var(--bg-light); border-radius:12px; padding:16px; }
+  .res-hours h3 { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--green); margin-bottom:8px; }
+  .hr { display:flex; justify-content:space-between; font-size:12px; padding:4px 0; border-bottom:1px dashed #c8d9b0; }
+  .hr:last-child { border-bottom:none; }
+
+  #menu-home .scroll { padding:18px; background:var(--bg-light); }
+  .cat-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .cat-btn {
+    background:#fff; border:none; border-radius:20px; padding:22px 12px;
+    cursor:pointer; text-align:center; box-shadow:0 2px 12px rgba(58,107,53,.1);
+    display:flex; flex-direction:column; align-items:center; gap:10px; transition:all .22s;
+  }
+  .cat-btn:active { transform:translateY(-2px); box-shadow:0 6px 20px rgba(58,107,53,.18); }
+  .cat-btn svg { width:38px; height:38px; }
+  .cat-btn .cn { font-size:12px; font-weight:600; letter-spacing:.8px; text-transform:uppercase; color:var(--dark); }
+  .cat-btn .cc { font-size:10px; color:var(--green); margin-top:2px; }
+
+  .cat-body { padding:16px; background:var(--bg-light); }
+  .sec-sep { display:flex; align-items:center; gap:8px; margin:20px 0 12px; }
+  .sec-sep::before,.sec-sep::after { content:''; flex:1; height:1px; background:var(--bg-mid); }
+  .sec-sep span { background:var(--green); color:#fff; font-size:9px; font-weight:600; letter-spacing:2px; text-transform:uppercase; padding:5px 12px; border-radius:20px; }
+
+  .item {
+    background:#fff; border-radius:14px; margin-bottom:9px;
+    box-shadow:0 1px 8px rgba(58,107,53,.09);
+    display:flex; align-items:stretch; overflow:hidden; cursor:pointer;
+    transition:transform .18s, box-shadow .18s;
+  }
+  .item:active { transform:scale(.99); box-shadow:0 3px 14px rgba(58,107,53,.15); }
+  .item-img {
+    width:88px; flex-shrink:0; position:relative; overflow:hidden;
+    background:linear-gradient(135deg,#c8d9b0,#a0be88);
+  }
+  .item-img img {
+    width:100%; height:100%; object-fit:cover; display:block;
+    transition:transform .3s;
+  }
+  .item:active .item-img img { transform:scale(1.05); }
+  .item-img .no-img {
+    width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+  }
+  .item-img .no-img svg { width:28px; height:28px; opacity:.5; }
+  .item-body { flex:1; padding:12px 13px; display:flex; flex-direction:column; justify-content:center; gap:3px; min-width:0; }
+  .iname { font-weight:600; font-size:13px; color:var(--dark); letter-spacing:.2px; line-height:1.3; }
+  .idesc { font-family:'Lora',serif; font-style:italic; font-size:11px; color:#7a9470; line-height:1.45; }
+  .iprice { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:var(--green); margin-top:2px; }
+  .tap-hint { display:flex; align-items:center; gap:3px; font-size:9px; color:#9ab88a; margin-top:3px; letter-spacing:.5px; }
+  .tap-hint svg { width:9px; height:9px; }
+
+  .ilist { background:#fff; border-radius:14px; padding:12px 14px; margin-bottom:9px; box-shadow:0 1px 8px rgba(58,107,53,.09); }
+  .il { display:flex; justify-content:space-between; font-size:12px; padding:5px 0; border-bottom:1px dashed #e0e8d8; }
+  .il:last-child { border-bottom:none; }
+  .il .n { color:var(--dark); }
+  .il .p { color:var(--green); font-family:'Playfair Display',serif; font-weight:700; font-size:13px; }
+
+  .beb-tabs { display:flex; overflow-x:auto; gap:7px; padding:14px 14px 0; background:var(--bg-light); flex-shrink:0; scrollbar-width:none; }
+  .beb-tabs::-webkit-scrollbar { display:none; }
+  .beb-t {
+    white-space:nowrap; background:#fff; border:1.5px solid var(--bg-mid);
+    color:var(--green); padding:7px 14px; border-radius:20px;
+    font-size:10px; font-weight:600; letter-spacing:1px; text-transform:uppercase;
+    cursor:pointer; transition:all .18s; flex-shrink:0;
+  }
+  .beb-t.on, .beb-t:active { background:var(--green); color:#fff; border-color:var(--green); }
+  .beb-p { display:none; }
+  .beb-p.on { display:block; }
+
+  #mas-info .scroll { padding:20px; background:var(--bg-light); }
+  .info-c { background:#fff; border-radius:18px; padding:20px; margin-bottom:14px; box-shadow:var(--shadow); }
+  .info-c h3 { font-family:'Playfair Display',serif; font-size:17px; color:var(--dark); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .info-c h3 svg { width:20px; height:20px; flex-shrink:0; }
+  .info-c p { font-size:13px; line-height:1.7; color:#5a7a52; font-family:'Lora',serif; }
+
+  #ubicacion .scroll { padding:18px; background:var(--bg-light); }
+  .map-wrap { background:#fff; border-radius:20px; overflow:hidden; box-shadow:var(--shadow); margin-bottom:14px; }
+  .map-wrap iframe { width:100%; height:210px; border:0; display:block; }
+  .map-info { padding:18px; }
+  .map-info h3 { font-family:'Playfair Display',serif; font-size:16px; color:var(--dark); margin-bottom:4px; display:flex; align-items:center; gap:6px; }
+  .map-info h3 svg { width:16px; height:16px; }
+  .map-info p { font-size:12px; color:#6a8a60; line-height:1.6; margin-bottom:14px; }
+  .map-btn {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--green); color:#fff; border:none; border-radius:50px;
+    padding:13px; font-family:'Josefin Sans',sans-serif; font-size:12px;
+    font-weight:600; letter-spacing:1px; cursor:pointer; text-decoration:none;
+    width:100%; transition:background .2s;
+  }
+  .map-btn:active { background:var(--dark); }
+  .map-btn svg { width:15px; height:15px; }
+
+  #lb {
+    display:none; position:fixed; inset:0; z-index:999;
+    background:rgba(0,0,0,.85); backdrop-filter:blur(4px);
+    align-items:flex-end; justify-content:center;
+    animation:lbIn .3s ease;
+  }
+  #lb.open { display:flex; }
+  @keyframes lbIn { from{opacity:0} to{opacity:1} }
+  .lb-card {
+    background:#fff; border-radius:28px 28px 0 0;
+    width:100%; max-width:500px;
+    max-height:88vh; overflow-y:auto;
+    animation:lbUp .3s ease;
+  }
+  @keyframes lbUp { from{transform:translateY(60px)} to{transform:none} }
+  .lb-img { width:100%; height:240px; object-fit:cover; display:block; border-radius:28px 28px 0 0; background:linear-gradient(135deg,#c8d9b0,#a0be88); }
+  .lb-body { padding:22px 22px 32px; }
+  .lb-price { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--green); margin-bottom:4px; }
+  .lb-name { font-family:'Playfair Display',serif; font-size:20px; font-weight:600; color:var(--dark); margin-bottom:10px; line-height:1.2; }
+  .lb-desc { font-family:'Lora',serif; font-style:italic; font-size:14px; color:#6a8a60; line-height:1.7; margin-bottom:22px; }
+  .lb-close {
+    position:absolute; top:16px; right:16px;
+    background:rgba(0,0,0,.45); border:none; color:#fff;
+    width:36px; height:36px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:18px;
+    transition:background .2s;
+  }
+  .lb-close:active { background:rgba(0,0,0,.65); }
+  .lb-card-wrap { position:relative; }
+  .lb-wa {
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    background:#25d366; color:#fff; border:none; border-radius:50px;
+    padding:14px; font-family:'Josefin Sans',sans-serif; font-size:13px;
+    font-weight:600; cursor:pointer; text-decoration:none;
+    width:100%; box-shadow:0 4px 16px rgba(37,211,102,.3);
+  }
+  .lb-wa svg { width:18px; height:18px; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="home" class="screen active">
+  <div class="home-inner">
+   <div class="home-logo">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" width="120" height="120">
+        <defs>
+          <clipPath id="logoClip">
+            <circle cx="60" cy="60" r="54"/>
+          </clipPath>
+        </defs>
+        <image href="img/Logo1.jpeg" x="6" y="6" width="108" height="108"
+              clip-path="url(#logoClip)" preserveAspectRatio="xMidYMid slice"/>
+        <circle cx="60" cy="60" r="58" fill="none" stroke="rgba(184,150,12,0.5)" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="home-badge">San Cristóbal · República Dominicana</div>
+    <div class="home-title">Menú<br><span>Bambú</span></div>
+    <div class="home-sub">Cocina de autor · Cócteles artesanales</div>
+    <div class="home-nav">
+      <button class="hnb" onclick="show('reservas')">
+        <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="22" height="22" rx="3"/>
+          <path d="M3 10h22"/>
+          <path d="M8 2v4M20 2v4"/>
+          <path d="M9 17l3 3 7-6"/>
+        </svg>
+        <span>Reservas</span>
+      </button>
+      <button class="hnb" onclick="show('menu-home')">
+        <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19h20"/>
+          <path d="M4 22h20"/>
+          <path d="M14 4a10 10 0 0110 10H4A10 10 0 0114 4z"/>
+          <path d="M14 4v3"/>
+        </svg>
+        <span>Menú</span>
+      </button>
+      <button class="hnb" onclick="show('mas-info')">
+        <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="14" cy="14" r="11"/>
+          <line x1="14" y1="12" x2="14" y2="20"/>
+          <line x1="14" y1="8" x2="14.01" y2="8" stroke-width="2.5"/>
+        </svg>
+        <span>Más Info</span>
+      </button>
+      <button class="hnb" onclick="show('ubicacion')">
+        <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2a8 8 0 018 8c0 7-8 16-8 16S6 17 6 10a8 8 0 018-8z"/>
+          <circle cx="14" cy="10" r="3"/>
+        </svg>
+        <span>Ubicación</span>
+      </button>
+    </div>
+  </div>
+  <div class="bamboo-bg"></div>
+</div>
+
+<!-- RESERVAS -->
+<div id="reservas" class="screen">
+  <div class="ph">
+    <button class="back" onclick="show('home')">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg>
+    </button>
+    <h1>Reserva tu <em>Mesa</em></h1>
+  </div>
+  <div class="scroll">
+    <div class="res-card" style="margin:auto;max-width:360px;">
+      <svg viewBox="0 0 52 52" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="8" width="40" height="38" rx="4"/>
+        <path d="M6 18h40"/>
+        <path d="M16 4v8M36 4v8"/>
+        <path d="M17 30l5 5 13-11"/>
+      </svg>
+      <h2>¿Listo para visitarnos?</h2>
+      <p>Las reservas se realizan directamente por WhatsApp. Escríbenos y con gusto te confirmamos tu mesa.</p>
+      <a href="https://wa.me/18098888888?text=Hola!%20Quisiera%20hacer%20una%20reserva%20en%20Men%C3%BA%20Bamb%C3%BA" class="wa-btn" target="_blank">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Reservar por WhatsApp
+      </a>
+      <p class="res-note">Respuesta rápida · Confirmación inmediata</p>
+      <div class="res-hours">
+        <h3>Horario</h3>
+        <div class="hr"><span>Lunes – Jueves</span><span>12:00 – 10:00 PM</span></div>
+        <div class="hr"><span>Viernes – Sábado</span><span>12:00 – 12:00 AM</span></div>
+        <div class="hr"><span>Domingo</span><span>12:00 – 9:00 PM</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MENU HOME -->
+<div id="menu-home" class="screen">
+  <div class="ph">
+    <button class="back" onclick="show('home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg></button>
+    <h1>Menú <em>Bambú</em></h1>
+  </div>
+  <div class="scroll">
+    <div style="padding:18px;background:var(--bg-light);">
+      <div class="cat-grid">
+        <button class="cat-btn" onclick="show('entradas')">
+          <svg viewBox="0 0 38 38" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 7c-6 0-10 4.5-10 10 0 4.5 2.5 8.5 6.5 10.5v3.5h7v-3.5C26.5 25.5 29 21.5 29 17c0-5.5-4-10-10-10z" fill="#eef3e6"/>
+            <path d="M14.5 17c0-2.5 2-4.5 4.5-4.5"/>
+            <path d="M14 22.5h10"/>
+          </svg>
+          <span class="cn">Entradas</span><span class="cc">11 platos</span>
+        </button>
+        <button class="cat-btn" onclick="show('principales')">
+          <svg viewBox="0 0 38 38" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 24h24"/>
+            <path d="M7 27h24"/>
+            <path d="M19 8c-6.627 0-12 5.373-12 11h24c0-6.627-5.373-11-12-11z" fill="#eef3e6"/>
+            <path d="M19 8v3.5"/>
+          </svg>
+          <span class="cn">Platos</span><span class="cc">Cortes · Pastas · Mariscos</span>
+        </button>
+        <button class="cat-btn" onclick="show('postres')">
+          <svg viewBox="0 0 38 38" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 18c0-4 3.1-8 7-8s7 4 7 8H12z" fill="#eef3e6"/>
+            <rect x="10" y="18" width="18" height="4" rx="2"/>
+            <path d="M15 30h8"/>
+            <path d="M19 22v8"/>
+            <path d="M16 8c0-1.5 1.5-2.5 3-2.5s3 1 3 2.5" stroke-dasharray="2 1"/>
+          </svg>
+          <span class="cn">Postres</span><span class="cc">3 opciones</span>
+        </button>
+        <button class="cat-btn" onclick="show('bebidas')">
+          <svg viewBox="0 0 38 38" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 8l9 11 9-11H10z" fill="#eef3e6"/>
+            <path d="M19 19v12"/>
+            <path d="M14 31h10"/>
+            <path d="M14 14c1.5 1 3 1 5 0"/>
+          </svg>
+          <span class="cn">Bebidas</span><span class="cc">Cócteles · Vinos · Más</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTRADAS -->
+<div id="entradas" class="screen">
+  <div class="ph"><button class="back" onclick="show('menu-home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg></button><h1>Entradas <em>Bambú</em></h1></div>
+  <div class="scroll"><div class="cat-body" id="body-entradas"></div></div>
+</div>
+
+<!-- PRINCIPALES -->
+<div id="principales" class="screen">
+  <div class="ph"><button class="back" onclick="show('menu-home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg></button><h1>Platos <em>Principales</em></h1></div>
+  <div class="scroll"><div class="cat-body" id="body-principales"></div></div>
+</div>
+
+<!-- POSTRES -->
+<div id="postres" class="screen">
+  <div class="ph"><button class="back" onclick="show('menu-home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg></button><h1><em>Postres</em></h1></div>
+  <div class="scroll"><div class="cat-body" id="body-postres"></div></div>
+</div>
+
+<!-- BEBIDAS -->
+<div id="bebidas" class="screen">
+  <div class="ph"><button class="back" onclick="show('menu-home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg></button><h1><em>Bebidas</em></h1></div>
+  <div class="beb-tabs" id="beb-tabs"></div>
+  <div class="scroll"><div class="cat-body" id="body-bebidas" style="padding-top:14px;"></div></div>
+</div>
+
+<!-- MAS INFO -->
+<div id="mas-info" class="screen">
+  <div class="ph"><button class="back" onclick="show('home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg></button><h1>Más <em>Información</em></h1></div>
+  <div class="scroll">
+    <div style="padding:18px;background:var(--bg-light);">
+      <div class="info-c">
+        <h3>
+          <svg viewBox="0 0 20 20" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round">
+            <path d="M10 2C6 2 3 5.5 3 9.5c0 3 1.8 5.5 3.8 7v2.5h6.4V16.5c2-1.5 3.8-4 3.8-7C17 5.5 14 2 10 2z"/>
+            <circle cx="10" cy="9" r="2"/>
+          </svg>
+          Menú Bambú
+        </h3>
+        <p>Un espacio donde la cocina de autor se fusiona con la mixología artesanal. Disfruta de nuestros cortes importados, pastas frescas, mariscos frescos y los mejores cócteles de San Cristóbal.</p>
+      </div>
+      <div class="info-c">
+        <h3>
+          <svg viewBox="0 0 20 20" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round">
+            <rect x="2" y="4" width="16" height="14" rx="2"/>
+            <path d="M2 8h16"/>
+            <path d="M6 2v4M14 2v4"/>
+            <path d="M6 12l3 3 5-5"/>
+          </svg>
+          Reservas
+        </h3>
+        <p>Las reservas se realizan exclusivamente por WhatsApp. Escríbenos con tu nombre, fecha y número de personas.</p>
+        <a href="https://wa.me/18098888888?text=Hola!%20Quisiera%20hacer%20una%20reserva" class="wa-btn" style="margin-top:14px;" target="_blank">
+          <svg viewBox="0 0 24 24" fill="white" width="18" height="18"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Escribir por WhatsApp
+        </a>
+      </div>
+      <div class="info-c">
+        <h3>
+          <svg viewBox="0 0 20 20" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round">
+            <path d="M10 2a6 6 0 016 6c0 5-6 10-6 10S4 13 4 8a6 6 0 016-6z"/>
+            <circle cx="10" cy="8" r="2"/>
+          </svg>
+          Ubicación
+        </h3>
+        <p>San Cristóbal, República Dominicana.</p>
+        <button onclick="show('ubicacion')" style="margin-top:10px;background:var(--bg-light);border:none;color:var(--dark);padding:9px 16px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Josefin Sans',sans-serif;">Ver en mapa →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- UBICACION -->
+<div id="ubicacion" class="screen">
+  <div class="ph"><button class="back" onclick="show('home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg></button><h1><em>Ubicación</em></h1></div>
+  <div class="scroll">
+    <div style="padding:18px;background:var(--bg-light);">
+      <div class="map-wrap">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d60612.45!2d-70.1099!3d18.4161!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8ea4a5abf7e1c20b%3A0x7c3e5dabc5cfab5c!2sSan%20Crist%C3%B3bal%2C%20Dominican%20Republic!5e0!3m2!1sen!2s!4v1" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <div class="map-info">
+          <h3>
+            <svg viewBox="0 0 16 16" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round"><path d="M8 2a5 5 0 015 5c0 4-5 8-5 8S3 11 3 7a5 5 0 015-5z"/><circle cx="8" cy="7" r="1.8"/></svg>
+            Menú Bambú
+          </h3>
+          <p>San Cristóbal, República Dominicana</p>
+          <a href="https://maps.google.com/?q=San+Cristobal+Dominican+Republic" target="_blank" class="map-btn">
+            <svg viewBox="0 0 15 15" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round"><path d="M7.5 2a4.5 4.5 0 014.5 4.5C12 10 7.5 13 7.5 13S3 10 3 6.5A4.5 4.5 0 017.5 2z"/><circle cx="7.5" cy="6.5" r="1.5"/></svg>
+            Abrir en Google Maps
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lb" onclick="closeLB(event)">
+  <div class="lb-card">
+    <div class="lb-card-wrap">
+      <img id="lb-img" class="lb-img" src="" alt="" onerror="this.style.display='none'">
+      <button class="lb-close" onclick="closeLB()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
+      </button>
+    </div>
+    <div class="lb-body">
+      <div id="lb-price" class="lb-price"></div>
+      <div id="lb-name" class="lb-name"></div>
+      <div id="lb-desc" class="lb-desc"></div>
+      <a id="lb-wa" href="#" class="lb-wa" target="_blank">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Ordenar por WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+const IMG = {
+  // ── ENTRADAS ──────────────────────────────────────────────────
+  "Croquetas Artesanales":              "img/menu/img001.jpeg",
+  "Taquitos de Churrasco":              "img/menu/img002.jpeg",
+  "Camarones Tempura":                  "img/menu/img003.jpeg",
+  "Mofonguitos de Camarones":           "img/menu/img004.jpeg",
+  "Carpaccio de Res":                   "img/menu/img005.jpeg",
+  "Berenjena a la parmesana":           "img/menu/pending.jpeg",
+  "Burrata con Prosciutto":             "img/menu/img006.jpeg",
+  "Canasticas de camarones":            "img/menu/pending.jpeg",
+  "Canasticas de pechuga de pollo":     "img/menu/img024.jpeg",
+  "Tuna Tartar":                        "img/menu/img007.jpeg",
+  "Aros de Calamar Crujiente":          "img/menu/img008.jpeg",
+  // ── PASTAS Y ARROCES ─────────────────────────────────────────
+  "Penne en Salsa 4 Quesos de Pollo":   "img/menu/img009.jpeg",
+  "Penne en Salsa 4 Quesos de Camarones":"img/menu/pending.jpeg",
+  "Fettuccine a la Carbonara":          "img/menu/img011.jpeg",
+  "Fettuccine de Mariscos":             "img/menu/img012.jpeg",
+  "Chowfan Bambú":                      "img/menu/img013.jpeg",
+  // ── EXTRAS BAMBÚ ─────────────────────────────────────────────
+  "Mofongo Volcán":                     "img/menu/img014.jpeg",
+  "Mofongo de Pollo":                   "img/menu/img015.jpeg",
+  "Mofongo de Costilla":                "img/menu/img022.jpeg",
+  "Mofongo de Chicharron":              "img/menu/img023.jpeg",
+  "Mofongo de pechuga a la crema":      "img/menu/pending.jpeg",
+  "Clásica Suprema Bambú":              "img/menu/img016.jpeg",
+  "Pechuga al maduro en salsa alfredo": "img/menu/img025.jpeg",
+  "Pechuga a la Gordon Blue":           "img/menu/img017.jpeg",
+  "Pechuga a la Plancha":               "img/menu/img018.jpeg",
+  // ── MARISCOS ─────────────────────────────────────────────────
+  "Salmón a la Chinola":                "img/menu/img019.jpeg",
+  "Salmón a la Plancha":                "img/menu/img020.jpeg",
+  "Salmón en Salsa Chimichurri":        "img/menu/img021.jpeg",
+  "Camarones al Ajillo":                "img/menu/pending.jpeg",
+  "Camarones a la Crema":               "img/menu/pending.jpeg",
+  "Pulpo al Bambú":                     "img/menu/pending.jpeg",
+  // ── CORTES ───────────────────────────────────────────────────
+  "Churrasco Angus (10 oz)":            "img/menu/pending.jpeg",
+  "Picaña (10 oz)":                     "img/menu/pending.jpeg",
+  "Rib Eye (10 oz)":                    "img/menu/pending.jpeg",
+  "Tomahawk":                           "img/menu/pending.jpeg",
+  "Costillas Baby Back":                "img/menu/pending.jpeg",
+  // ── PARRILLADA ───────────────────────────────────────────────
+  "Parrillada al Bambú":                "img/menu/pending.jpeg",
+  "Parrillada Mar y Tierra":            "img/menu/pending.jpeg",
+  // ── POSTRES ──────────────────────────────────────────────────
+  "Brownie a la Moda":                  "img/menu/pending.jpeg",
+  "Delicias del Bambú":                 "img/menu/pending.jpeg",
+  "Flan Imperial":                      "img/menu/pending.jpeg",
+  // ── CÓCTELES CLÁSICOS ────────────────────────────────────────
+  "Margarita Clásica":                  "img/menu/img101.jpeg",
+  "Margarita de Chinola":               "img/menu/img102.jpeg",
+  "Mojito de Limón":                    "img/menu/img103.jpeg",
+  "Mojito de Chinola":                  "img/menu/img104.jpeg",
+  "Mojito de Coco":                     "img/menu/img105.jpeg",
+  "Negrony":                            "img/menu/img106.jpeg",
+  // ── CÓCTELES DE LA CASA ──────────────────────────────────────
+  "La Ex":                              "img/menu/img107.jpeg",
+  "La Popi":                            "img/menu/img108.jpeg",
+  "El Bambú":                           "img/menu/img109.jpeg",
+  "La Diabla":                          "img/menu/img110.jpeg",
+  // ── MOCKTAILS ────────────────────────────────────────────────
+  "Amor Tropical":                      "img/menu/img112.jpeg",
+  "Bambú Beer":                         "img/menu/pending.jpeg",
+  "Rosé Bambú":                         "img/menu/pending.jpeg",
+  "Cherry Bebé":                        "img/menu/pending.jpeg",
+  // ── RESTO BEBIDAS ────────────────────────────────────────────
+  "Moscow Mule":      "img/menu/pending.jpeg",
+  "Gin Tonic Clásico":"img/menu/pending.jpeg",
+  "Vodka Tónic":      "img/menu/pending.jpeg",
+  "Daiquiri Limón":   "img/menu/pending.jpeg",
+  "Expreso Martini":  "img/menu/pending.jpeg",
+  "Cosmopolitan":     "img/menu/pending.jpeg",
+  "Caipirinha":       "img/menu/pending.jpeg",
+  "Piña Colada":      "img/menu/pending.jpeg",
+  "Martini Dry":      "img/menu/pending.jpeg",
+  "Sangría Tinta":    "img/menu/pending.jpeg",
+  "Lychee Martini":   "img/menu/pending.jpeg",
+  "Sexy Berry":       "img/menu/pending.jpeg",
+  "Manhattan":        "img/menu/pending.jpeg",
+};
+
+const DEFAULT_IMG = {
+  entrada: "img/menu/pending.jpeg",
+  plato:   "img/menu/pending.jpeg",
+  postre:  "img/menu/pending.jpeg",
+  bebida:  "img/menu/pending.jpeg"
+};
+
+function getImg(n, t='plato') { return IMG[n] || DEFAULT_IMG[t]; }
+
+function itemCard(name, desc, price, imgType='plato') {
+  const img = getImg(name, imgType);
+  const priceStr = price ? `$${(+price).toLocaleString()}` : '';
+  const data = JSON.stringify({name, desc, price: priceStr, img}).replace(/"/g, '&quot;');
+  return `<div class="item" onclick='openLB(${data})'>
+    <div class="item-img"><img src="${img}" alt="${name}" loading="lazy"></div>
+    <div class="item-body">
+      <div class="iname">${name}</div>
+      ${desc ? `<div class="idesc">${desc}</div>` : ''}
+      <div class="iprice">${priceStr}</div>
+      <div class="tap-hint"><svg viewBox="0 0 9 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="4.5" cy="4.5" r="3.5"/><path d="M3 4.5h3M4.5 3v3"/></svg> toca para ver</div>
+    </div>
+  </div>`;
+}
+
+function secSep(label) { return `<div class="sec-sep"><span>${label}</span></div>`; }
+
+function inlineList(items) {
+  return `<div class="ilist">${items.map(([n,p]) => `<div class="il"><span class="n">${n}</span><span class="p">$${(+p).toLocaleString()}</span></div>`).join('')}</div>`;
+}
+
+// ── ENTRADAS ─────────────────────────────────────────────────────────────────
+document.getElementById('body-entradas').innerHTML =
+  itemCard('Croquetas Artesanales',       'pechuga de pollo o jamón ibérico · salsa pomodoro', 450, 'entrada') +
+  itemCard('Taquitos de Churrasco',        'pimientos · pico de gallo', 675, 'entrada') +
+  itemCard('Camarones Tempura',            'salsa guilin chili · puerro', 650, 'entrada') +
+  itemCard('Mofonguitos de Camarones',     "pimientos rojos · Gina's hierbas", 650, 'entrada') +
+  itemCard('Carpaccio de Res',             'rúcula · queso parmesano · vinagreta de mostaza', 750, 'entrada') +
+  itemCard('Berenjena a la parmesana',     'berenjena en salsa rosa', 450, 'entrada') +
+  itemCard('Burrata con Prosciutto',       'mermelada · aceitunas · rúcula', 650, 'entrada') +
+  itemCard('Canasticas de camarones',      'camarones a la crema', 500, 'entrada') +
+  itemCard('Canasticas de pechuga de pollo','pechuga de pollo a la crema', 400, 'entrada') +
+  itemCard('Tuna Tartar',                  'atún marinado · aguacate', 750, 'entrada') +
+  itemCard('Aros de Calamar Crujiente',    'salsa tártara', 450, 'entrada');
+
+// ── PRINCIPALES ──────────────────────────────────────────────────────────────
+document.getElementById('body-principales').innerHTML =
+  secSep('Pastas y Arroces') +
+  itemCard('Penne en Salsa 4 Quesos de Pollo',     'pechuga de pollo en salsa cuatro quesos', 800) +
+  itemCard('Penne en Salsa 4 Quesos de Camarones', 'camarones en salsa cuatro quesos', 900) +
+  itemCard('Fettuccine a la Carbonara',             'pancetta frita crocante en salsa carbonara', 850) +
+  itemCard('Fettuccine de Mariscos',                'camarones, calamares y almejas en salsa pomodoro', 950) +
+  itemCard('Chowfan Bambú',                         'res, pollo y camarones, vegetales y huevo pochado', 1000) +
+  secSep('Extras Bambú') +
+  itemCard('Mofongo Volcán',                   'salsa alfredo · camarones', 1300) +
+  itemCard('Mofongo de Pollo',                 'pechuga de pollo', 950) +
+  itemCard('Mofongo de Costilla',              'costilla de cerdo', 1300) +
+  itemCard('Mofongo de Chicharron',            'chicharrón de cerdo', 1200) +
+  itemCard('Mofongo de pechuga a la crema',    'pechuga a la crema', 1000) +
+  itemCard('Clásica Suprema Bambú',            'pan brioche · carne angus 8 oz · vegetales frescos · salsa el bambú', 750) +
+  itemCard('Pechuga al maduro en salsa alfredo','pechuga de pollo en salsa alfredo con plátano maduro', 800) +
+  itemCard('Pechuga a la Gordon Blue',         'pechuga de pollo rellena · salsa blanca', 950) +
+  itemCard('Pechuga a la Plancha',             'pechuga de pollo al grill', 875) +
+  secSep('Guarniciones') +
+  inlineList([
+    ['Papas Fritas', 150], ['Tostones', 150], ['Yuca Mash', 200],
+    ['Puré de Papa', 170], ['Papas Salteadas', 180], ['Vegetales al Grill', 170]
+  ]) +
+  secSep('Cortes Importados') +
+  itemCard('Churrasco Angus (10 oz)', '', 1600) +
+  itemCard('Picaña (10 oz)',          '', 1700) +
+  itemCard('Rib Eye (10 oz)',         '', 2000) +
+  itemCard('Tomahawk',                '', 4600) +
+  itemCard('Costillas Baby Back',     '', 1200) +
+  secSep('Mariscos') +
+  itemCard('Camarones al Ajillo',        '', 850) +
+  itemCard('Camarones a la Crema',       '', 880) +
+  itemCard('Salmón a la Plancha',        '', 950) +
+  itemCard('Salmón en Salsa Chimichurri','', 950) +
+  itemCard('Salmón a la Chinola',        '', 980) +
+  itemCard('Pulpo al Bambú',             '', 1300) +
+  secSep('Parrillada') +
+  itemCard('Parrillada al Bambú',    'churrasco · picaña · costillas baby back · pechuga de pollo · salchichas alemanas', 2300) +
+  itemCard('Parrillada Mar y Tierra','churrasco · camarones · pollo · calamares', 2200);
+
+// ── POSTRES ───────────────────────────────────────────────────────────────────
+document.getElementById('body-postres').innerHTML =
+  itemCard('Brownie a la Moda',  'con helado artesanal',          435, 'postre') +
+  itemCard('Delicias del Bambú', 'pera caramelizada',             475, 'postre') +
+  itemCard('Flan Imperial',      'flan de vainilla · dulce de leche', 400, 'postre');
+
+// ── BEBIDAS ───────────────────────────────────────────────────────────────────
+const bebTabs = [
+  {id:'clasi', label:'Cócteles Clásicos'},
+  {id:'casa',  label:'De la Casa'},
+  {id:'mock',  label:'Mocktails'},
+  {id:'tragos',label:'Tragos'},
+  {id:'cerv',  label:'Cervezas'},
+  {id:'vinos', label:'Vinos'},
+  {id:'espu',  label:'Espumante'},
+  {id:'bote',  label:'Botellas'},
+  {id:'otros', label:'Jugos & Otros'}
+];
+
+document.getElementById('beb-tabs').innerHTML = bebTabs.map((t,i) =>
+  `<button class="beb-t ${i===0?'on':''}" onclick="switchBeb('${t.id}',this)">${t.label}</button>`
+).join('');
+
+const bebContent = {
+  clasi:
+    itemCard('Margarita Clásica',    'Tequila, Licor de Naranja, Zumo de Limón, Miel de Agave, sal', 350, 'bebida') +
+    itemCard('Margarita de Chinola', 'Tequila, Licor de Naranja, Zumo de Chinola, Miel de Agave, sal', 350, 'bebida') +
+    itemCard('Mojito de Limón',      'Ron Blanco, Menta, Limón, Bitter, Azúcar, Soda', 350, 'bebida') +
+    itemCard('Mojito de Chinola',    'Ron Blanco, Menta, Chinola, Limón, Azúcar, Soda', 350, 'bebida') +
+    itemCard('Mojito de Coco',       'Ron Blanco, Menta, Crema de Coco, Limón, Soda, Coco Deshidratado', 350, 'bebida') +
+    itemCard('Moscow Mule',          'Vodka, Limón, Miel opcional, Ginger Beer', 400, 'bebida') +
+    itemCard('Gin Tonic Clásico',    'Ginebra, Agua Tónica, Cortezas de Cítricos', 400, 'bebida') +
+    itemCard('Vodka Tónic',          'Vodka, agua tónica, limón', 300, 'bebida') +
+    itemCard('Daiquiri Limón',       'Ron Blanco, Limón, Azúcar', 250, 'bebida') +
+    itemCard('Expreso Martini',      'Vodka, Licor de Café, Café Expreso, Syrop Simple', 350, 'bebida') +
+    itemCard('Cosmopolitan',         'Vodka, Licor de Naranja, Limón, Arándano, Sirop', 300, 'bebida') +
+    itemCard('Caipirinha',           'Ron Blanco, Trozos de Limón, Azúcar Granulada', 350, 'bebida') +
+    itemCard('Piña Colada',          'Ron Blanco, Zumo de Piña, Crema de Coco, Leche Evaporada', 300, 'bebida') +
+    itemCard('Martini Dry',          'Ginebra, Vermut Dry', 300, 'bebida') +
+    itemCard('Sangría Tinta',        'Vino Tinto, Ron Blanco, Licor de Naranja, Frutas, Especia', 350, 'bebida') +
+    itemCard('Lychee Martini',       'Vodka, Lychee, Licor de Naranja, Limón', 400, 'bebida') +
+    itemCard('Sexy Berry',           '', 300, 'bebida') +
+    itemCard('Manhattan',            'Whisky, Vermut Rosso, Bitter, Cereza', 350, 'bebida') +
+    itemCard('Negrony',              'Vermouth rojo, Campari, Ginebra', 350, 'bebida'),
+
+  casa:
+    itemCard('La Ex',     'Whisky, syrop especies, Bitter de naranja, Bitter de cacao', 400, 'bebida') +
+    itemCard('La Popi',   'Tequila, vodka, syrop de flor de jamaica, sour de chinola, Espumante', 500, 'bebida') +
+    itemCard('El Bambú',  'Ron blanco, vodka, infusión de té verde, licor de melón sour, Menta', 400, 'bebida') +
+    itemCard('La Diabla', 'Tequila, Ron añejo, Syrop de piña y canela, Naranja, Limón espumante', 400, 'bebida'),
+
+  mock:
+    itemCard('Bambú Beer',    'Limón, Piña, Syrop de Menta, Cerveza SIN ALCOHOL', 250, 'bebida') +
+    itemCard('Amor Tropical', 'Fresas, Manzana sour, Manzanilla, Canela, Soda', 250, 'bebida') +
+    itemCard('Rosé Bambú',    'Agua de rosa, Flor de Jamaica, Menta, Fresa', 250, 'bebida') +
+    itemCard('Cherry Bebé',   'Refresco de limón, Syrop de frambuesa cherry', 150, 'bebida'),
+
+  tragos: inlineList([
+    ['Buchanan Máster', 400], ['Doble Reserva', 250], ['Stolinaya', 300],
+    ['Trago de Aperol', 350], ['Cuba Libre', 250], ['Brugal Leyenda', 350],
+    ['Shot Don Julio', 450], ['Shot de Patrón', 300], ['Trago de Bailey', 300],
+    ['José el Cuervo Shot', 250]
+  ]),
+
+  cerv: inlineList([
+    ['Cerveza Corona', 200], ['Cerveza Presidente', 160], ['Cerveza Presidente Dura', 160],
+    ['Cerveza Modelo', 200], ['Cerveza a Smirnoff', 210]
+  ]),
+
+  vinos: inlineList([
+    ['Luna Luna', 2500], ['Casillero del Diablo', 2300], ['19 Crímenes', 2400],
+    ['Frontera Cabernet Sauvignon', 2500], ['Culito', 1600], ['Vino 689', 2300],
+    ['Beringer Rosado', 1600], ['Protos Reservas', 4500], ['Protos Crianza 2019', 3300],
+    ['Merlot', 1600], ['Glorioso', 2000], ['Pedro', 2400]
+  ]),
+
+  espu: inlineList([
+    ['Chapanne Chandon Rosé', 8500], ['Champagne Veuve Clicquot', 8000],
+    ['Freixinet', 1700], ['Moet Ice', 7500], ['Don Periñon', 27000]
+  ]),
+
+  bote: inlineList([
+    ['Gold Label', 5800], ['Buchanans Máster', 4900], ['Buchanans 12 Años', 3300],
+    ['Don Julio Reposado', 6800], ['Casa Amigo', 5400], ['Chivas Rigas 18 Años', 7900],
+    ['Chivas Rigas 12 Años', 2850], ['Old Pac 12 Años', 3250], ['Doble Reserva', 1600],
+    ['Extra Viejo', 1380], ['Leyenda', 2000], ['Fareball', 900], ['Bombay', 2600],
+    ['Don Julio 1942', 14800], ['Clase Azul', 17500], ['Patrón Silver', 4900],
+    ['Blue Label', 21800], ['Green Label', 6200], ['Black Label', 3350],
+    ['Stolichnaya', 2000], ['Titos', 2850]
+  ]),
+
+  otros:
+    secSep('Jugos Naturales') +
+    inlineList([
+      ['Jugo de Limón', 150], ['Jugo de Cereza', 150],
+      ['Jugo de China', 150], ['Jugo de Chinola', 150]
+    ]) +
+    secSep('Soft Drinks') +
+    inlineList([
+      ['Agua Natural', 50], ['Agua San Pelegrino', 250], ['Agua Tónica', 115],
+      ['Soda Amarga', 115], ['Agua Perrier', 200], ['Refrescos', 70],
+      ['Red Bull', 200], ['Ciclón', 300], ['Jugo Moet', 200], ['Gramberry', 250],
+      ['Gatorade', 100], ['Jugo de Naranja', 150], ['Capuccino', 150],
+      ['Caffee Negro', 100], ['Frappuccino', 300], ['Café Frío', 200],
+      ['Cherry', 350], ['Manís', 200], ['Aceitunas', 250]
+    ]) +
+    secSep('Digestivos') +
+    inlineList([['Frangelico', 250], ['Sambvca Romana', 270], ['Amaro Aveno', 240]])
+};
+
+document.getElementById('body-bebidas').innerHTML = Object.values(bebContent).map((c,i) =>
+  `<div class="beb-p ${i===0?'on':''}" id="beb-${bebTabs[i].id}">${c}</div>`
+).join('');
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function switchBeb(id, btn) {
+  document.querySelectorAll('.beb-t').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.beb-p').forEach(p => p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('beb-' + id).classList.add('on');
+}
+
+function openLB(data) {
+  if (typeof data === 'string') data = JSON.parse(data);
+  document.getElementById('lb-img').src = data.img;
+  document.getElementById('lb-img').style.display = 'block';
+  document.getElementById('lb-name').textContent  = data.name;
+  document.getElementById('lb-desc').textContent  = data.desc;
+  document.getElementById('lb-price').textContent = data.price;
+  const msg = encodeURIComponent(`Hola! Quisiera ordenar: ${data.name} ${data.price}`);
+  document.getElementById('lb-wa').href = `https://wa.me/18098888888?text=${msg}`;
+  document.getElementById('lb').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLB(e) {
+  if (!e || e.target === document.getElementById('lb') || e.currentTarget?.classList?.contains('lb-close')) {
+    document.getElementById('lb').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+}
+</script>
+</body>
+</html>
