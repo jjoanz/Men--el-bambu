@@ -130,7 +130,7 @@
     background:linear-gradient(135deg,#c8d9b0,#a0be88);
   }
   .item-img img {
-    width:100%; height:100%; object-fit:cover; display:block;
+    width:100%; height:100%; object-fit:cover; object-position:center bottom; display:block;
     transition:transform .3s;
   }
   .item:active .item-img img { transform:scale(1.05); }
@@ -201,7 +201,7 @@
     animation:lbUp .3s ease;
   }
   @keyframes lbUp { from{transform:translateY(60px)} to{transform:none} }
-  .lb-img { width:100%; height:240px; object-fit:cover; display:block; border-radius:28px 28px 0 0; background:linear-gradient(135deg,#c8d9b0,#a0be88); }
+  .lb-img { width:100%; height:400px; object-fit:cover; object-position:center bottom; display:block; border-radius:28px 28px 0 0; background:linear-gradient(135deg,#c8d9b0,#a0be88); }
   .lb-body { padding:22px 22px 32px; }
   .lb-price { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--green); margin-bottom:4px; }
   .lb-name { font-family:'Playfair Display',serif; font-size:20px; font-weight:600; color:var(--dark); margin-bottom:10px; line-height:1.2; }
@@ -230,15 +230,14 @@
 <!-- HOME -->
 <div id="home" class="screen active">
   <div class="home-inner">
-   <div class="home-logo">
+    <div class="home-logo">
       <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" width="120" height="120">
         <defs>
           <clipPath id="logoClip">
             <circle cx="60" cy="60" r="54"/>
           </clipPath>
         </defs>
-        <image href="img/Logo1.jpeg" x="6" y="6" width="108" height="108"
-              clip-path="url(#logoClip)" preserveAspectRatio="xMidYMid slice"/>
+        <image href="img/Logo1.jpeg" x="6" y="6" width="108" height="108" clip-path="url(#logoClip)" preserveAspectRatio="xMidYMid slice"/>
         <circle cx="60" cy="60" r="58" fill="none" stroke="rgba(184,150,12,0.5)" stroke-width="1.5"/>
       </svg>
     </div>
