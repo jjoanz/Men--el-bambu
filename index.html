@@ -452,22 +452,52 @@
 
 <!-- UBICACION -->
 <div id="ubicacion" class="screen">
-  <div class="ph"><button class="back" onclick="show('home')"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M10 3L5 8l5 5"/></svg></button><h1><em>Ubicación</em></h1></div>
+  <div class="ph">
+    <button class="back" onclick="show('home')">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+        <path d="M10 3L5 8l5 5"/>
+      </svg>
+    </button>
+    <h1><em>Ubicación</em></h1>
+  </div>
+
   <div class="scroll">
     <div style="padding:18px;background:var(--bg-light);">
       <div class="map-wrap">
-        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d60612.45!2d-70.1099!3d18.4161!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8ea4a5abf7e1c20b%3A0x7c3e5dabc5cfab5c!2sSan%20Crist%C3%B3bal%2C%20Dominican%20Republic!5e0!3m2!1sen!2s!4v1" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+        <!-- MAPA CORRECTO DEL RESTAURANTE -->
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3794.232!2d-70.1164739!3d18.4177685!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8ea55f000a3f4c09%3A0x8ee5acb0862c0463!2sEl%20Bamb%C3%BA%20Restaurante!5e0!3m2!1ses!2sdo!4v1"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+
         <div class="map-info">
           <h3>
-            <svg viewBox="0 0 16 16" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round"><path d="M8 2a5 5 0 015 5c0 4-5 8-5 8S3 11 3 7a5 5 0 015-5z"/><circle cx="8" cy="7" r="1.8"/></svg>
+            <svg viewBox="0 0 16 16" fill="none" stroke="#3a6b35" stroke-width="1.7" stroke-linecap="round">
+              <path d="M8 2a5 5 0 015 5c0 4-5 8-5 8S3 11 3 7a5 5 0 015-5z"/>
+              <circle cx="8" cy="7" r="1.8"/>
+            </svg>
             Menú Bambú
           </h3>
-          <p>San Cristóbal, República Dominicana</p>
-          <a href="https://maps.google.com/?q=San+Cristobal+Dominican+Republic" target="_blank" class="map-btn">
-            <svg viewBox="0 0 15 15" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round"><path d="M7.5 2a4.5 4.5 0 014.5 4.5C12 10 7.5 13 7.5 13S3 10 3 6.5A4.5 4.5 0 017.5 2z"/><circle cx="7.5" cy="6.5" r="1.5"/></svg>
+
+          <p>El Bambú Restaurante, Av. Constitución 165, San Cristóbal 91000</p>
+
+          <a 
+            href="https://www.google.com/maps?q=El+Bamb%C3%BA+Restaurante+San+Cristobal"
+            target="_blank"
+            class="map-btn">
+
+            <svg viewBox="0 0 15 15" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round">
+              <path d="M7.5 2a4.5 4.5 0 014.5 4.5C12 10 7.5 13 7.5 13S3 10 3 6.5A4.5 4.5 0 017.5 2z"/>
+              <circle cx="7.5" cy="6.5" r="1.5"/>
+            </svg>
+
             Abrir en Google Maps
           </a>
         </div>
+
       </div>
     </div>
   </div>
@@ -551,6 +581,12 @@ const IMG = {
   "Mojito de Chinola":                  "img/menu/img104.jpeg",
   "Mojito de Coco":                     "img/menu/img105.jpeg",
   "Negrony":                            "img/menu/img106.jpeg",
+  "Aperol":            "img/menu/img113.jpeg",
+  "Isla Dorada":       "img/menu/img114.jpeg",
+  "Dulce Tentación":   "img/menu/img115.jpeg",
+  "Pasión Encendida":  "img/menu/img116.jpeg",
+  "Mar Caribe":        "img/menu/img117.jpeg",
+  "Bosque Nocturno":   "img/menu/img118.jpeg",
   // ── CÓCTELES DE LA CASA ──────────────────────────────────────
   "La Ex":                              "img/menu/img107.jpeg",
   "La Popi":                            "img/menu/img108.jpeg",
@@ -717,7 +753,13 @@ const bebContent = {
     itemCard('Lychee Martini',       'Vodka, Lychee, Licor de Naranja, Limón', 400, 'bebida') +
     itemCard('Sexy Berry',           '', 300, 'bebida') +
     itemCard('Manhattan',            'Whisky, Vermut Rosso, Bitter, Cereza', 350, 'bebida') +
-    itemCard('Negrony',              'Vermouth rojo, Campari, Ginebra', 350, 'bebida'),
+    itemCard('Negrony',              'Vermouth rojo, Campari, Ginebra', 350, 'bebida') +
+    itemCard('Isla Dorada',          'Ron blanco, Syrope de piña, Zumo de limón, Zumo de chinola, Angostura, Top de sod', 350, 'bebida') +
+    itemCard('Dulce Tentación',       'Ron blanco, Syrope de flor de jamaica, Crema de coco y Zumo de limon', 350, 'bebida') +
+    itemCard('Pasión Encendida',       'Syrope rosado, Ron blanco, Ron oscuro, Vodka, Limón, Soda amarilla', 350, 'bebida') +
+    itemCard('Bosque Nocturno',       'Syrope de uva, Vodka, Triple sec, Limón hojas de menta, Soda con gas', 350, 'bebida') +
+    itemCard('Mar Caribe',            'Tequila, Triple sec, Syrope de piña, Crema de coco, Limón, Pizca de tajin', 350, 'bebida') +
+    itemCard('Aperol',               'Prosseco, Aperol, Soda con gas', 350, 'bebida'),
 
   casa:
     itemCard('La Ex',     'Whisky, syrop especies, Bitter de naranja, Bitter de cacao', 400, 'bebida') +
