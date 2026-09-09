@@ -532,7 +532,7 @@ const IMG = {
   "Camarones Tempura":                  "img/menu/img003.jpeg",
   "Mofonguitos de Camarones":           "img/menu/img004.jpeg",
   "Carpaccio de Res":                   "img/menu/img005.jpeg",
-  "Berenjena a la parmesana":           "img/menu/pending.jpeg",
+  "Berenjena a la parmesana":           "img/menu/img026.jpeg",
   "Burrata con Prosciutto":             "img/menu/img006.jpeg",
   "Canasticas de camarones":            "img/menu/pending.jpeg",
   "Canasticas de pechuga de pollo":     "img/menu/img024.jpeg",
@@ -540,7 +540,7 @@ const IMG = {
   "Aros de Calamar Crujiente":          "img/menu/img008.jpeg",
   // ── PASTAS Y ARROCES ─────────────────────────────────────────
   "Penne en Salsa 4 Quesos de Pollo":   "img/menu/img009.jpeg",
-  "Penne en Salsa 4 Quesos de Camarones":"img/menu/pending.jpeg",
+  "Penne en Salsa 4 Quesos de Camarones":"img/menu/img010.jpeg",
   "Fettuccine a la Carbonara":          "img/menu/img011.jpeg",
   "Fettuccine de Mariscos":             "img/menu/img012.jpeg",
   "Chowfan Bambú":                      "img/menu/img013.jpeg",
@@ -549,10 +549,14 @@ const IMG = {
   "Mofongo de Pollo":                   "img/menu/img015.jpeg",
   "Mofongo de Costilla":                "img/menu/img022.jpeg",
   "Mofongo de Chicharron":              "img/menu/img023.jpeg",
-  "Mofongo de pechuga a la crema":      "img/menu/pending.jpeg",
+  "Mofongo de pechuga a la crema":      "img/menu/img027.jpeg",
+  "Pechurinita con papa":               "img/menu/pending.jpeg",
   "Clásica Suprema Bambú":              "img/menu/img016.jpeg",
   "Pechuga al maduro en salsa alfredo": "img/menu/img025.jpeg",
   "Pechuga a la Gordon Blue":           "img/menu/img017.jpeg",
+  "Ensalada de atún":                   "img/menu/pending.jpeg",
+  "Ensalada cesar":                     "img/menu/pending.jpeg",
+  "Ensalada el bambú":                  "img/menu/pending.jpeg",
   "Pechuga a la Plancha":               "img/menu/img018.jpeg",
   // ── MARISCOS ─────────────────────────────────────────────────
   "Salmón a la Chinola":                "img/menu/img019.jpeg",
@@ -560,16 +564,24 @@ const IMG = {
   "Salmón en Salsa Chimichurri":        "img/menu/img021.jpeg",
   "Camarones al Ajillo":                "img/menu/pending.jpeg",
   "Camarones a la Crema":               "img/menu/pending.jpeg",
-  "Pulpo al Bambú":                     "img/menu/pending.jpeg",
+  "Pulpo al Bambú":                     "img/menu/img033.jpeg",
+  "Salpicon de Mariscos":               "img/menu/pending.jpeg",
+  "Cazuela de mariscos":                "img/menu/pending.jpeg",
+  "Filete de mero al limón":            "img/menu/pending.jpeg",
+  "Filete de mero a la plancha":        "img/menu/pending.jpeg",
+  "Langosta rellena de camarones":      "img/menu/pending.jpeg",
+  "Langosta al estilo bambú":           "img/menu/pending.jpeg",
+  "Rabo encendido al estilo bambú":     "img/menu/pending.jpeg",
   // ── CORTES ───────────────────────────────────────────────────
-  "Churrasco Angus (10 oz)":            "img/menu/pending.jpeg",
+  "Churrasco Angus (10 oz)":            "img/menu/img028.jpeg",
   "Picaña (10 oz)":                     "img/menu/pending.jpeg",
   "Rib Eye (10 oz)":                    "img/menu/pending.jpeg",
-  "Tomahawk":                           "img/menu/pending.jpeg",
-  "Costillas Baby Back":                "img/menu/pending.jpeg",
+  "Tomahawk":                           "img/menu/img029.jpeg",
+  "Costillas Baby Back":                "img/menu/img030.jpeg",
+  "Filete migñon en salsa de champiñones trinchado": "img/menu/pending.jpeg",
   // ── PARRILLADA ───────────────────────────────────────────────
-  "Parrillada al Bambú":                "img/menu/pending.jpeg",
-  "Parrillada Mar y Tierra":            "img/menu/pending.jpeg",
+  "Parrillada al Bambú":                "img/menu/img031.jpeg",
+  "Parrillada Mar y Tierra":            "img/menu/img032.jpeg",
   // ── POSTRES ──────────────────────────────────────────────────
   "Brownie a la Moda":                  "img/menu/pending.jpeg",
   "Delicias del Bambú":                 "img/menu/pending.jpeg",
@@ -609,6 +621,9 @@ const IMG = {
   "Martini Dry":      "img/menu/pending.jpeg",
   "Sangría Tinta":    "img/menu/pending.jpeg",
   "Lychee Martini":   "img/menu/pending.jpeg",
+  "La Poderosa":      "img/menu/pending.jpeg",
+  "La viuda blanca":  "img/menu/pending.jpeg",
+  "Chica Tropical":   "img/menu/pending.jpeg",
   "Sexy Berry":       "img/menu/pending.jpeg",
   "Manhattan":        "img/menu/pending.jpeg",
 };
@@ -688,17 +703,23 @@ document.getElementById('body-principales').innerHTML =
   itemCard('Pechuga al maduro en salsa alfredo','pechuga de pollo en salsa alfredo con plátano maduro', 800) +
   itemCard('Pechuga a la Gordon Blue',         'pechuga de pollo rellena · salsa blanca', 950) +
   itemCard('Pechuga a la Plancha',             'pechuga de pollo al grill', 875) +
+  itemCard('Pechurinita con papa',             'pechurinitas', 500) +
   secSep('Guarniciones') +
   inlineList([
     ['Papas Fritas', 150], ['Tostones', 150], ['Yuca Mash', 200],
     ['Puré de Papa', 170], ['Papas Salteadas', 180], ['Vegetales al Grill', 170]
   ]) +
+  secSep('Ensaladas') +
+  itemCard('Ensalada de atún',   '', 700) +
+  itemCard('Ensalada cesar',     '', 700) +
+  itemCard('Ensalada el bambú',  '', 850) +
   secSep('Cortes Importados') +
   itemCard('Churrasco Angus (10 oz)', '', 1600) +
   itemCard('Picaña (10 oz)',          '', 1700) +
   itemCard('Rib Eye (10 oz)',         '', 2000) +
   itemCard('Tomahawk',                '', 4600) +
   itemCard('Costillas Baby Back',     '', 1200) +
+  itemCard('Filete migñon en salsa de champiñones trinchado', '', 1500) +
   secSep('Mariscos') +
   itemCard('Camarones al Ajillo',        '', 850) +
   itemCard('Camarones a la Crema',       '', 880) +
@@ -706,6 +727,14 @@ document.getElementById('body-principales').innerHTML =
   itemCard('Salmón en Salsa Chimichurri','', 950) +
   itemCard('Salmón a la Chinola',        '', 980) +
   itemCard('Pulpo al Bambú',             '', 1300) +
+  itemCard('Salpicon de Mariscos',       '', 800) +
+  itemCard('Cazuela de mariscos',        '', 1350) +
+  itemCard('Filete de mero al limón',    '', 700) +
+  itemCard('Filete de mero a la plancha','', 680) +
+  itemCard('Langosta rellena de camarones', '', 2400) +
+  itemCard('Langosta al estilo bambú',   '', 1800) +
+  secSep('Platos de la Casa') +
+  itemCard('Rabo encendido al estilo bambú', '', 700) +
   secSep('Parrillada') +
   itemCard('Parrillada al Bambú',    'churrasco · picaña · costillas baby back · pechuga de pollo · salchichas alemanas', 2300) +
   itemCard('Parrillada Mar y Tierra','churrasco · camarones · pollo · calamares', 2200);
@@ -739,7 +768,7 @@ const bebContent = {
     itemCard('Margarita de Chinola', 'Tequila, Licor de Naranja, Zumo de Chinola, Miel de Agave, sal', 350, 'bebida') +
     itemCard('Mojito de Limón',      'Ron Blanco, Menta, Limón, Bitter, Azúcar, Soda', 350, 'bebida') +
     itemCard('Mojito de Chinola',    'Ron Blanco, Menta, Chinola, Limón, Azúcar, Soda', 350, 'bebida') +
-    itemCard('Mojito de Coco',       'Ron Blanco, Menta, Crema de Coco, Limón, Soda, Coco Deshidratado', 350, 'bebida') +
+    itemCard('Mojito de Coco',       'Ron Blanco, Menta, Crema de Coco, Limón, Soda, Coco Deshidratado', 380, 'bebida') +
     itemCard('Moscow Mule',          'Vodka, Limón, Miel opcional, Ginger Beer', 400, 'bebida') +
     itemCard('Gin Tonic Clásico',    'Ginebra, Agua Tónica, Cortezas de Cítricos', 400, 'bebida') +
     itemCard('Vodka Tónic',          'Vodka, agua tónica, limón', 300, 'bebida') +
@@ -750,13 +779,13 @@ const bebContent = {
     itemCard('Piña Colada',          'Ron Blanco, Zumo de Piña, Crema de Coco, Leche Evaporada', 300, 'bebida') +
     itemCard('Martini Dry',          'Ginebra, Vermut Dry', 300, 'bebida') +
     itemCard('Sangría Tinta',        'Vino Tinto, Ron Blanco, Licor de Naranja, Frutas, Especia', 350, 'bebida') +
-    itemCard('Lychee Martini',       'Vodka, Lychee, Licor de Naranja, Limón', 400, 'bebida') +
-    itemCard('Sexy Berry',           '', 300, 'bebida') +
+    itemCard('Lychee Martini',       'Vodka, Lychee, Licor de Naranja, Limón', 430, 'bebida') +
+    itemCard('Sexy Berry',           '', 400, 'bebida') +
     itemCard('Manhattan',            'Whisky, Vermut Rosso, Bitter, Cereza', 350, 'bebida') +
     itemCard('Negrony',              'Vermouth rojo, Campari, Ginebra', 350, 'bebida') +
     itemCard('Isla Dorada',          'Ron blanco, Syrope de piña, Zumo de limón, Zumo de chinola, Angostura, Top de sod', 350, 'bebida') +
     itemCard('Dulce Tentación',       'Ron blanco, Syrope de flor de jamaica, Crema de coco y Zumo de limon', 350, 'bebida') +
-    itemCard('Pasión Encendida',       'Syrope rosado, Ron blanco, Ron oscuro, Vodka, Limón, Soda amarilla', 350, 'bebida') +
+    itemCard('Pasión Encendida',       'Syrope rosado, Ron blanco, Ron oscuro, Vodka, Limón, Soda amarilla', 380, 'bebida') +
     itemCard('Bosque Nocturno',       'Syrope de uva, Vodka, Triple sec, Limón hojas de menta, Soda con gas', 350, 'bebida') +
     itemCard('Mar Caribe',            'Tequila, Triple sec, Syrope de piña, Crema de coco, Limón, Pizca de tajin', 350, 'bebida') +
     itemCard('Aperol',               'Prosseco, Aperol, Soda con gas', 350, 'bebida'),
@@ -764,13 +793,16 @@ const bebContent = {
   casa:
     itemCard('La Ex',     'Whisky, syrop especies, Bitter de naranja, Bitter de cacao', 400, 'bebida') +
     itemCard('La Popi',   'Tequila, vodka, syrop de flor de jamaica, sour de chinola, Espumante', 500, 'bebida') +
-    itemCard('El Bambú',  'Ron blanco, vodka, infusión de té verde, licor de melón sour, Menta', 400, 'bebida') +
+    itemCard('La Poderosa', '', 600, 'bebida') +
+    itemCard('El Bambú',  'Ron blanco, vodka, infusión de té verde, licor de melón sour, Menta', 500, 'bebida') +
     itemCard('La Diabla', 'Tequila, Ron añejo, Syrop de piña y canela, Naranja, Limón espumante', 400, 'bebida'),
 
   mock:
     itemCard('Bambú Beer',    'Limón, Piña, Syrop de Menta, Cerveza SIN ALCOHOL', 250, 'bebida') +
     itemCard('Amor Tropical', 'Fresas, Manzana sour, Manzanilla, Canela, Soda', 250, 'bebida') +
     itemCard('Rosé Bambú',    'Agua de rosa, Flor de Jamaica, Menta, Fresa', 250, 'bebida') +
+    itemCard('La viuda blanca', '', 750, 'bebida') +
+    itemCard('Chica Tropical',  '', 450, 'bebida') +
     itemCard('Cherry Bebé',   'Refresco de limón, Syrop de frambuesa cherry', 150, 'bebida'),
 
   tragos: inlineList([
