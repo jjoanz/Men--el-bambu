@@ -6,12 +6,13 @@
 # Antes: deploy.sh debe haber subido el código a /opt/bambu y el sitio a /var/www/bambu.
 # Uso (varios dominios separados por espacio; el primero es el principal):
 #   DOMAINS="bambu.konviard.cloud" ./setup-server.sh
-#   DOMAINS="bambu.konviard.cloud elbamburestaurante.com www.elbamburestaurante.com" ./setup-server.sh
+#   CERT_NAME=bambu.konviard.cloud DOMAINS="elbamburestaurante.com www.elbamburestaurante.com bambu.konviard.cloud" ./setup-server.sh
 # El certificado HTTPS se pide solo para los dominios que ya apuntan a este servidor.
 set -euo pipefail
 
 DOMAINS="${DOMAINS:-bambu.konviard.cloud}"
 PRIMARY="${DOMAINS%% *}"
+CERT_NAME="${CERT_NAME:-$PRIMARY}"   # nombre del certificado (con --expand se le agregan dominios)
 APP=/opt/bambu
 WEB=/var/www/bambu
 DATA=/var/lib/bambu
@@ -40,12 +41,12 @@ if [ ! -f "$ENVF" ]; then
 DATABASE_URL=postgres://bambu:$PW@127.0.0.1:5432/bambu_db
 PORT=3010
 UPLOAD_DIR=$DATA/uploads
-PUBLIC_URL=https://$PRIMARY
 COOKIE_SECURE=true
 EOF
   )
   chown root:bambu "$ENVF"; chmod 640 "$ENVF"
 fi
+sed -i '/^PUBLIC_URL=/d' "$ENVF"   # las fotos se sirven con ruta relativa (mismo dominio)
 [ "$(pg -Atc "select 1 from pg_database where datname='bambu_db'")" = 1 ] || pg -qc "create database bambu_db owner bambu"
 as_bambu 'psql "$DATABASE_URL" -Atc "select 1" >/dev/null' && echo "conexión a Postgres OK"
 
@@ -177,7 +178,7 @@ for d in $DOMAINS; do
   if getent ahostsv4 "$d" | awk '{print $1}' | grep -qx "$MYIP"; then READY+=(-d "$d"); else PENDING+=("$d"); fi
 done
 if [ ${#READY[@]} -gt 0 ]; then
-  certbot --nginx "${READY[@]}" --expand --non-interactive --agree-tos --register-unsafely-without-email --redirect
+  certbot --nginx --cert-name "$CERT_NAME" "${READY[@]}" --expand --non-interactive --agree-tos --register-unsafely-without-email --redirect
 fi
 [ ${#PENDING[@]} -eq 0 ] || echo "AVISO: aún no apuntan a este servidor (sin HTTPS todavía): ${PENDING[*]}. Cuando apunten, vuelve a correr este script."
 
