@@ -20,7 +20,7 @@ Navegador ──HTTPS──> nginx ──> /            sitio estático (index.h
 
 ## Cómo funciona
 - **Categoría** = una sección del menú. Elige su pantalla (Entradas, Principales, Postres, Bebidas) y su formato: *tarjetas con foto* o *lista simple*. En Bebidas, las categorías con la misma **pestaña** se agrupan.
-- **Agotado**: se ve en el menú pero no se puede pedir por WhatsApp. **Oculto**: desaparece del menú sin borrarse.
+- **Agotado**: se ve en el menú marcado como “Agotado”. **Oculto**: desaparece del menú sin borrarse.
 - Las fotos se reducen a ~1200 px (JPEG) en el navegador antes de subirse; el servidor valida que sean imágenes reales.
 - Seguridad: sesión en cookie `HttpOnly + Secure + SameSite=Strict`, contraseñas con scrypt, límite de intentos de login, escritura solo con sesión y consultas SQL parametrizadas. Postgres solo escucha en `localhost`.
 
@@ -29,7 +29,7 @@ Requisitos: Ubuntu con nginx, Postgres, Node 20 y certbot; un dominio apuntando 
 
 1. Crear el usuario `bambu` y autorizar la llave SSH de despliegue (sin privilegios de root).
 2. `deploy/deploy.sh` sube el código; luego, como root en el servidor:
-   `DOMAINS="menu.midominio.com" /root/setup-server.sh`
+   `DOMAINS="menu.midominio.com" /root/setup-server.sh` (sin `DOMAINS` usa `elbamburestaurante.com`)
    (crea base y rol `bambu`/`bambu_db`, servicio `bambu-api`, sitio nginx, HTTPS, respaldos diarios y el usuario `admin` con una clave aleatoria que imprime una sola vez).
 3. Entrar a `https://<dominio>/admin.html`, y cambiar la contraseña desde el propio panel.
 

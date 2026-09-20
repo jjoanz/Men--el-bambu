@@ -5,12 +5,12 @@
 #
 # Antes: deploy.sh debe haber subido el código a /opt/bambu y el sitio a /var/www/bambu.
 # Uso (varios dominios separados por espacio; el primero es el principal):
-#   DOMAINS="bambu.konviard.cloud" ./setup-server.sh
-#   CERT_NAME=bambu.konviard.cloud DOMAINS="elbamburestaurante.com www.elbamburestaurante.com bambu.konviard.cloud" ./setup-server.sh
+#   ./setup-server.sh                                   # elbamburestaurante.com y www
+#   DOMAINS="menu.midominio.com" ./setup-server.sh      # otro dominio
 # El certificado HTTPS se pide solo para los dominios que ya apuntan a este servidor.
 set -euo pipefail
 
-DOMAINS="${DOMAINS:-bambu.konviard.cloud}"
+DOMAINS="${DOMAINS:-elbamburestaurante.com www.elbamburestaurante.com}"
 PRIMARY="${DOMAINS%% *}"
 CERT_NAME="${CERT_NAME:-$PRIMARY}"   # nombre del certificado (con --expand se le agregan dominios)
 APP=/opt/bambu
