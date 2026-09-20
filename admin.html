@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Panel Bambú</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Josefin+Sans:wght@300;400;600&family=Lora:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-light:#eef3e6; --bg-mid:#c8d9b0; --green:#3a6b35; --dark:#1e3d1a; --gold:#b8960c;
+    --cream:#f5f0e8; --text:#2a4a25; --muted:#7a9470; --danger:#b3402f; --shadow:0 2px 14px rgba(30,61,26,.10);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { -webkit-text-size-adjust:100%; }
+  body { font-family:'Josefin Sans',sans-serif; background:var(--bg-light); color:var(--text); min-height:100vh; min-height:100dvh; }
+  button, input, select, textarea { font:inherit; color:inherit; }
+  button { cursor:pointer; }
+  [hidden] { display:none !important; }
+
+  /* ── botones ── */
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; border-radius:50px; padding:12px 20px; background:var(--green); color:#fff; font-weight:600; font-size:13px; letter-spacing:.5px; transition:background .15s, opacity .15s; }
+  .btn:active { background:var(--dark); }
+  .btn:disabled { opacity:.55; cursor:default; }
+  .btn.ghost { background:#fff; color:var(--green); border:1.5px solid var(--bg-mid); }
+  .btn.ghost:active { background:var(--bg-light); }
+  .btn.small { padding:8px 14px; font-size:12px; }
+  .btn.danger { background:none; color:var(--danger); padding:10px; font-weight:600; }
+  .icon-btn { width:34px; height:34px; border-radius:50%; border:1.5px solid var(--bg-mid); background:#fff; color:var(--green); display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .icon-btn:active { background:var(--bg-light); }
+  .icon-btn:disabled { opacity:.35; cursor:default; }
+  .icon-btn svg { width:15px; height:15px; }
+
+  /* ── login ── */
+  #login { min-height:100vh; min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:24px 16px; background:linear-gradient(155deg,#162e13 0%,#2a5424 50%,#3a6b35 100%); }
+  .login-card { background:#fff; border-radius:24px; padding:32px 24px; width:100%; max-width:380px; box-shadow:0 12px 40px rgba(0,0,0,.25); text-align:center; }
+  .login-logo { width:84px; height:84px; border-radius:50%; object-fit:cover; border:2px solid rgba(184,150,12,.5); margin-bottom:14px; }
+  .login-card h1 { font-family:'Playfair Display',serif; color:var(--dark); font-size:24px; }
+  .login-card h1 em { color:var(--green); font-style:normal; }
+  .login-card p.sub { color:var(--muted); font-size:13px; margin:4px 0 22px; }
+  .login-card form { text-align:left; display:flex; flex-direction:column; gap:14px; }
+  .login-card .btn { width:100%; margin-top:4px; }
+  .form-msg { min-height:18px; font-size:12.5px; color:var(--danger); text-align:center; }
+
+  /* ── campos ── */
+  label.f { display:flex; flex-direction:column; gap:5px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:var(--green); }
+  label.f .opt { font-weight:400; text-transform:none; letter-spacing:0; color:var(--muted); }
+  input[type=text], input[type=email], input[type=password], input[type=number], input[type=search], select, textarea {
+    width:100%; background:var(--bg-light); border:1.5px solid transparent; border-radius:12px; padding:12px 14px; font-size:15px; color:var(--dark); text-transform:none; letter-spacing:0; font-weight:400; outline:none;
+  }
+  textarea { resize:vertical; min-height:64px; font-family:inherit; }
+  input:focus, select:focus, textarea:focus { border-color:var(--green); background:#fff; }
+  .hint { font-size:12px; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0; line-height:1.4; }
+
+  /* ── app ── */
+  .bar { position:sticky; top:0; z-index:20; background:var(--dark); color:#fff; display:flex; align-items:center; gap:10px; padding:10px 14px; }
+  .bar img { width:36px; height:36px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(184,150,12,.6); }
+  .bar h1 { font-family:'Playfair Display',serif; font-size:18px; flex:1; }
+  .bar h1 em { color:#c8e88a; font-style:normal; }
+  .bar a, .bar button { color:#fff; background:rgba(255,255,255,.12); border:none; border-radius:20px; padding:8px 14px; font-size:12px; font-weight:600; text-decoration:none; letter-spacing:.5px; }
+  .bar a:active, .bar button:active { background:rgba(255,255,255,.25); }
+
+  .wrap { max-width:720px; margin:0 auto; padding:0 14px 90px; }
+  .tabs { display:flex; gap:7px; overflow-x:auto; padding:14px 0 6px; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .tab { white-space:nowrap; flex-shrink:0; background:#fff; border:1.5px solid var(--bg-mid); color:var(--green); border-radius:20px; padding:8px 14px; font-size:11px; font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+  .tab.on { background:var(--green); border-color:var(--green); color:#fff; }
+  .tab .n { opacity:.7; font-weight:400; margin-left:4px; }
+  .toolbar { display:flex; gap:8px; margin:10px 0 4px; }
+  .toolbar input { flex:1; min-width:0; background:#fff; }
+
+  .cat { background:#fff; border-radius:16px; box-shadow:var(--shadow); margin-top:14px; overflow:hidden; }
+  .cat-h { display:flex; align-items:center; gap:8px; padding:12px 12px 12px 16px; background:linear-gradient(135deg,#f6faf0,#e6efd8); border-bottom:1px solid var(--bg-mid); }
+  .cat-h .t { flex:1; min-width:0; }
+  .cat-h h2 { font-family:'Playfair Display',serif; font-size:17px; color:var(--dark); line-height:1.2; overflow-wrap:anywhere; }
+  .cat-h .meta { font-size:11px; color:var(--muted); margin-top:2px; }
+  .cat-add { display:block; width:100%; border:none; background:none; color:var(--green); font-weight:600; font-size:13px; padding:14px; border-top:1px dashed var(--bg-mid); }
+  .cat-add:active { background:var(--bg-light); }
+  .cat-empty { padding:18px 16px; font-size:13px; color:var(--muted); text-align:center; }
+
+  .prow { display:flex; align-items:center; gap:10px; padding:10px 12px; border-top:1px solid #edf2e6; }
+  .prow:first-of-type { border-top:none; }
+  .prow.is-hidden .pthumb, .prow.is-hidden .pinfo { opacity:.5; }
+  .pthumb { width:48px; height:48px; border-radius:10px; overflow:hidden; border:none; padding:0; flex-shrink:0; background:linear-gradient(135deg,#c8d9b0,#a0be88); display:flex; align-items:center; justify-content:center; }
+  .pthumb img { width:100%; height:100%; object-fit:cover; display:block; }
+  .pthumb svg { width:20px; height:20px; opacity:.6; }
+  .pinfo { flex:1; min-width:0; cursor:pointer; }
+  .pname { font-weight:600; font-size:14px; color:var(--dark); line-height:1.25; overflow-wrap:anywhere; }
+  .pmeta { display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:3px; }
+  .pprice { font-family:'Playfair Display',serif; font-weight:700; font-size:14px; color:var(--green); }
+  .tag { font-size:9px; font-weight:600; letter-spacing:.8px; text-transform:uppercase; padding:2px 7px; border-radius:10px; background:#f3ead0; color:#8a6d05; }
+  .tag.gray { background:#e8ece3; color:#65775c; }
+  .pctl { display:flex; align-items:center; gap:6px; flex-shrink:0; }
+  .chip { border:1.5px solid var(--bg-mid); background:#fff; color:var(--green); border-radius:20px; padding:6px 10px; font-size:10.5px; font-weight:600; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; }
+  .chip.out { background:var(--danger); border-color:var(--danger); color:#fff; }
+  .arrows { display:flex; flex-direction:column; gap:3px; }
+  .arrows .icon-btn { width:26px; height:22px; border-radius:8px; }
+  .arrows .icon-btn svg { width:11px; height:11px; }
+
+  .empty { text-align:center; color:var(--muted); font-size:14px; padding:44px 16px; line-height:1.6; }
+
+  /* ── hoja (modal) ── */
+  .overlay { position:fixed; inset:0; z-index:50; background:rgba(15,30,12,.6); backdrop-filter:blur(3px); display:flex; align-items:flex-end; justify-content:center; animation:fade .2s ease; }
+  @keyframes fade { from{opacity:0} to{opacity:1} }
+  @keyframes up { from{transform:translateY(40px)} to{transform:none} }
+  .card { background:#fff; width:100%; max-width:520px; max-height:92vh; max-height:92dvh; overflow-y:auto; border-radius:24px 24px 0 0; padding:22px 20px calc(24px + env(safe-area-inset-bottom, 0px)); animation:up .25s ease; }
+  @media (min-width:600px) { .overlay { align-items:center; } .card { border-radius:24px; } }
+  .card h2 { font-family:'Playfair Display',serif; font-size:21px; color:var(--dark); margin-bottom:16px; }
+  .card form { display:flex; flex-direction:column; gap:14px; }
+  .card .actions { display:flex; gap:10px; margin-top:6px; }
+  .card .actions .btn { flex:1; }
+  .card .link-row { text-align:center; }
+  .card p.txt { font-size:14px; line-height:1.55; color:var(--text); margin-bottom:18px; }
+
+  .sw { display:flex; align-items:center; gap:12px; background:var(--bg-light); border-radius:12px; padding:11px 14px; font-size:14px; color:var(--dark); cursor:pointer; }
+  .sw input { appearance:none; -webkit-appearance:none; width:44px; height:26px; border-radius:20px; background:#b9c7ad; position:relative; flex-shrink:0; transition:background .2s; cursor:pointer; }
+  .sw input::after { content:''; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; transition:transform .2s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+  .sw input:checked { background:var(--green); }
+  .sw input:checked::after { transform:translateX(18px); }
+  .sw small { display:block; color:var(--muted); font-size:11.5px; line-height:1.3; }
+
+  .photo { display:flex; gap:14px; align-items:center; }
+  .ph-prev { width:96px; height:96px; border-radius:14px; overflow:hidden; flex-shrink:0; background:linear-gradient(135deg,#c8d9b0,#a0be88); display:flex; align-items:center; justify-content:center; }
+  .ph-prev img { width:100%; height:100%; object-fit:cover; }
+  .ph-prev svg { width:32px; height:32px; opacity:.6; }
+  .ph-btns { display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+  .ph-btns input[type=file] { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+  .ph-note { font-size:12px; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0; }
+
+  .foot { text-align:center; margin-top:28px; }
+  .foot button { background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; padding:8px; }
+
+  #toast { position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom, 0px)); transform:translate(-50%,20px); z-index:99; background:var(--dark); color:#fff; padding:12px 20px; border-radius:30px; font-size:13.5px; max-width:calc(100vw - 32px); text-align:center; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; box-shadow:0 6px 24px rgba(0,0,0,.25); }
+  #toast.show { opacity:1; transform:translate(-50%,0); }
+  #toast.err { background:var(--danger); }
+  .spin { width:14px; height:14px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login" hidden>
+  <div class="login-card">
+    <img class="login-logo" src="img/Logo1.jpeg" alt="El Bambú">
+    <h1>Panel <em>Bambú</em></h1>
+    <p class="sub">Administra los productos de tu menú</p>
+    <form id="login-form" autocomplete="on">
+      <label class="f">Usuario<input type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+      <label class="f">Contraseña<input type="password" name="password" autocomplete="current-password" required></label>
+      <div class="form-msg" id="login-msg" role="alert"></div>
+      <button class="btn" type="submit" id="login-btn">Entrar</button>
+    </form>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" hidden>
+  <div class="bar">
+    <img src="img/Logo1.jpeg" alt="">
+    <h1>Panel <em>Bambú</em></h1>
+    <a href="index.html" target="_blank" rel="noopener">Ver menú</a>
+    <button id="logout" type="button">Salir</button>
+  </div>
+  <div class="wrap">
+    <div class="tabs" id="tabs"></div>
+    <div class="toolbar">
+      <input type="search" id="q" placeholder="Buscar producto…" aria-label="Buscar producto">
+      <button class="btn small" id="add-cat" type="button">+ Categoría</button>
+    </div>
+    <div id="list"></div>
+    <div class="foot"><button type="button" id="chpw">Cambiar contraseña</button></div>
+  </div>
+</div>
+
+<div id="overlay" class="overlay" hidden><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
+<div id="toast" role="status"></div>
+
+<script>
+const SCREENS = { entradas: 'Entradas', principales: 'Principales', postres: 'Postres', bebidas: 'Bebidas' };
+const S = { cats: [], screen: 'entradas', q: '' };
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => '$' + (+n).toLocaleString();
+const bySort = (a, b) => (a.sort || 0) - (b.sort || 0);
+
+const ICON = {
+  up:   '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l5-5 5 5"/></svg>',
+  down: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l5 5 5-5"/></svg>',
+  edit: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 2.5l2.5 2.5L5.5 13 2 14l1-3.5z"/></svg>',
+  food: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v5a2 2 0 002 2 2 2 0 002-2V3M7 3v18M17 21V3c-2.2 1.2-3.5 3.8-3.5 7 0 2 .8 3 2 3H17"/></svg>',
+};
+
+// ── utilidades UI ────────────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg, kind) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'show' + (kind === 'err' ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), kind === 'err' ? 5000 : 2200);
+}
+
+function openCard(html) {
+  $('card').innerHTML = html;
+  $('overlay').hidden = false;
+  document.body.style.overflow = 'hidden';
+  const first = $('card').querySelector('input:not([type=file]):not([type=checkbox]), textarea');
+  if (first) setTimeout(() => first.focus({ preventScroll: true }), 50);
+}
+function closeCard() {
+  $('overlay').hidden = true;
+  $('card').innerHTML = '';
+  document.body.style.overflow = '';
+  if (photoUrl) { URL.revokeObjectURL(photoUrl); photoUrl = null; }
+}
+$('overlay').addEventListener('mousedown', e => { if (e.target === $('overlay')) closeCard(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('overlay').hidden) closeCard(); });
+
+function ask(title, text, okLabel) {
+  return new Promise(resolve => {
+    openCard(`<h2>${esc(title)}</h2><p class="txt">${esc(text)}</p>
+      <div class="actions"><button class="btn ghost" type="button" id="ask-no">Cancelar</button><button class="btn" type="button" id="ask-ok" style="background:var(--danger)">${esc(okLabel)}</button></div>`);
+    $('ask-no').onclick = () => { closeCard(); resolve(false); };
+    $('ask-ok').onclick = () => { closeCard(); resolve(true); };
+  });
+}
+
+function busy(btn, on, label) {
+  if (on) { btn.dataset.label = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<span class="spin"></span> ' + (label || 'Guardando…'); }
+  else { btn.disabled = false; btn.innerHTML = btn.dataset.label; }
+}
+
+// ── acceso ───────────────────────────────────────────────────────────────────
+function showLogin(msg) {
+  $('app').hidden = true; $('login').hidden = false;
+  if (msg !== undefined) $('login-msg').textContent = msg;
+}
+function showApp() { $('login').hidden = true; $('app').hidden = false; }
+
+// Todas las llamadas al servidor pasan por aquí. La sesión viaja en una cookie httpOnly;
+// el header X-Requested-With lo exige la API en toda escritura (protección CSRF).
+async function api(method, path, body) {
+  const opts = { method, headers: { 'X-Requested-With': 'bambu' }, credentials: 'same-origin' };
+  if (body instanceof FormData) opts.body = body;
+  else if (body !== undefined) { opts.headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(body); }
+  let r;
+  try { r = await fetch('/api' + path, opts); }
+  catch { throw new Error('Sin conexión con el servidor. Intenta de nuevo.'); }
+  let data = null;
+  try { data = await r.json(); } catch { /* respuesta sin cuerpo */ }
+  if (r.status === 401 && path !== '/login' && path !== '/me') showLogin('Tu sesión venció. Vuelve a entrar.');
+  if (!r.ok) throw new Error((data && data.error) || 'Error del servidor (' + r.status + ')');
+  return data;
+}
+
+async function boot() {
+  try { await api('GET', '/me'); }
+  catch { showLogin(''); return; }
+  await enter();
+}
+
+async function enter() { showApp(); await load(); }
+
+$('login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, btn = $('login-btn');
+  $('login-msg').textContent = '';
+  busy(btn, true, 'Entrando…');
+  try {
+    await api('POST', '/login', { username: f.username.value.trim(), password: f.password.value });
+    f.password.value = '';
+    await enter();
+  } catch (err) { $('login-msg').textContent = err.message; }
+  busy(btn, false);
+});
+$('logout').addEventListener('click', async () => { try { await api('POST', '/logout'); } catch { /* da igual */ } showLogin(''); });
+
+// ── datos ────────────────────────────────────────────────────────────────────
+async function load() {
+  try { S.cats = (await api('GET', '/admin/menu')).categories || []; }
+  catch (err) { toast('No se pudo cargar el menú: ' + err.message, 'err'); return; }
+  render();
+}
+
+const catsOf = screen => S.cats.filter(c => c.screen === screen).sort(bySort);
+const findCat = id => S.cats.find(c => c.id === +id);
+const findProd = id => { for (const c of S.cats) { const p = (c.products || []).find(p => p.id === id); if (p) return p; } };
+
+async function reorder(table, list, i, j) {
+  if (j < 0 || j >= list.length) return;
+  const arr = list.slice();
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  const changes = [];
+  arr.forEach((x, k) => { if (x.sort !== (k + 1) * 10) changes.push([x, (k + 1) * 10]); });
+  try {
+    await api('POST', '/admin/reorder', { table, items: changes.map(([x, s]) => ({ id: x.id, sort: s })) });
+    changes.forEach(([x, s]) => { x.sort = s; });
+    render();
+  } catch (err) { toast(err.message, 'err'); await load(); }
+}
+
+// ── fotos ────────────────────────────────────────────────────────────────────
+
+async function decode(file) {
+  try { return await createImageBitmap(file); }
+  catch {
+    return await new Promise((res, rej) => {
+      const url = URL.createObjectURL(file), img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); res(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('No se pudo leer la imagen')); };
+      img.src = url;
+    });
+  }
+}
+// Reduce fotos de celular (5-10 MB) a ~1200px JPEG: el menú carga rápido y ocupa poco espacio.
+async function compress(file) {
+  if (!/^image\//.test(file.type)) throw new Error('El archivo no es una imagen');
+  const bmp = await decode(file);
+  const w0 = bmp.width, h0 = bmp.height, k = Math.min(1, 1200 / Math.max(w0, h0));
+  const c = document.createElement('canvas');
+  c.width = Math.round(w0 * k); c.height = Math.round(h0 * k);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(bmp, 0, 0, c.width, c.height);
+  return await new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('No se pudo procesar la imagen')), 'image/jpeg', 0.82));
+}
+async function uploadPhoto(blob) {
+  const fd = new FormData();
+  fd.append('file', blob, 'foto.jpg');
+  return (await api('POST', '/admin/upload', fd)).url;
+}
+
+// ── pintar ───────────────────────────────────────────────────────────────────
+function render() {
+  const q = S.q.trim().toLowerCase();
+  $('tabs').innerHTML = Object.entries(SCREENS).map(([k, label]) => {
+    const n = catsOf(k).reduce((s, c) => s + (c.products || []).length, 0);
+    return `<button class="tab ${!q && k === S.screen ? 'on' : ''}" data-act="screen" data-id="${k}">${label}<span class="n">${n}</span></button>`;
+  }).join('');
+
+  const cats = (q ? S.cats.slice().sort((a, b) => a.screen.localeCompare(b.screen) || bySort(a, b)) : catsOf(S.screen));
+  const parts = cats.map(c => {
+    let prods = (c.products || []).slice().sort(bySort);
+    if (q) { prods = prods.filter(p => (p.name + ' ' + (p.description || '')).toLowerCase().includes(q)); if (!prods.length) return ''; }
+    return catHtml(c, prods, q);
+  }).join('');
+  $('list').innerHTML = parts || (q
+    ? `<div class="empty">No se encontró ningún producto con “${esc(S.q)}”.</div>`
+    : `<div class="empty">Aún no hay categorías en <b>${SCREENS[S.screen]}</b>.<br>Crea una con el botón “+ Categoría”.</div>`);
+}
+
+function catHtml(c, prods, searching) {
+  const siblings = catsOf(c.screen), idx = siblings.findIndex(x => x.id === c.id);
+  const meta = [searching ? SCREENS[c.screen] : null, c.screen === 'bebidas' && c.tab ? 'Pestaña: ' + c.tab : null, c.layout === 'list' ? 'Lista simple' : 'Con fotos'].filter(Boolean).join(' · ');
+  const all = (c.products || []).slice().sort(bySort);
+  const rows = prods.map(p => {
+    const i = all.findIndex(x => x.id === p.id), out = p.available === false, hidden = p.visible === false;
+    const noPhoto = c.layout !== 'list' && !p.image_url;
+    return `<div class="prow ${hidden ? 'is-hidden' : ''}">
+      ${c.layout === 'list' ? '' : `<button class="pthumb" data-act="prod-edit" data-id="${esc(p.id)}" aria-label="Editar ${esc(p.name)}">${p.image_url ? `<img src="${esc(p.image_url)}" alt="" loading="lazy" onerror="this.remove()">` : ICON.food}</button>`}
+      <div class="pinfo" data-act="prod-edit" data-id="${esc(p.id)}">
+        <div class="pname">${esc(p.name)}</div>
+        <div class="pmeta"><span class="pprice">${money(p.price)}</span>${hidden ? '<span class="tag">Oculto</span>' : ''}${noPhoto ? '<span class="tag gray">Sin foto</span>' : ''}</div>
+      </div>
+      <div class="pctl">
+        <button class="chip ${out ? 'out' : ''}" data-act="prod-toggle" data-id="${esc(p.id)}" title="Cambiar disponibilidad">${out ? 'Agotado' : 'Disponible'}</button>
+        ${searching ? '' : `<div class="arrows">
+          <button class="icon-btn" data-act="prod-up" data-id="${esc(p.id)}" aria-label="Subir" ${i === 0 ? 'disabled' : ''}>${ICON.up}</button>
+          <button class="icon-btn" data-act="prod-down" data-id="${esc(p.id)}" aria-label="Bajar" ${i === all.length - 1 ? 'disabled' : ''}>${ICON.down}</button>
+        </div>`}
+      </div>
+    </div>`;
+  }).join('');
+  return `<section class="cat">
+    <div class="cat-h">
+      <div class="t"><h2>${esc(c.name)}</h2><div class="meta">${esc(meta)}</div></div>
+      ${searching ? '' : `<button class="icon-btn" data-act="cat-up" data-id="${c.id}" aria-label="Subir categoría" ${idx === 0 ? 'disabled' : ''}>${ICON.up}</button>
+      <button class="icon-btn" data-act="cat-down" data-id="${c.id}" aria-label="Bajar categoría" ${idx === siblings.length - 1 ? 'disabled' : ''}>${ICON.down}</button>`}
+      <button class="icon-btn" data-act="cat-edit" data-id="${c.id}" aria-label="Editar categoría">${ICON.edit}</button>
+    </div>
+    ${rows || '<div class="cat-empty">Sin productos todavía.</div>'}
+    <button class="cat-add" data-act="prod-add" data-id="${c.id}">+ Agregar producto</button>
+  </section>`;
+}
+
+// ── eventos de la lista ──────────────────────────────────────────────────────
+$('q').addEventListener('input', e => { S.q = e.target.value; render(); });
+$('add-cat').addEventListener('click', () => catSheet(null));
+
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-act]');
+  if (!el) return;
+  const { act, id } = el.dataset;
+  try {
+    if (act === 'screen') { S.screen = id; S.q = ''; $('q').value = ''; render(); }
+    else if (act === 'prod-edit') prodSheet(findProd(id), null);
+    else if (act === 'prod-add') prodSheet(null, +id);
+    else if (act === 'cat-edit') catSheet(findCat(id));
+    else if (act === 'prod-toggle') {
+      const p = findProd(id), next = p.available === false;
+      el.disabled = true;
+      await api('PATCH', '/admin/products/' + id, { available: next });
+      p.available = next; render();
+      toast(next ? 'Marcado como disponible' : 'Marcado como agotado');
+    }
+    else if (act === 'prod-up' || act === 'prod-down') {
+      const p = findProd(id), list = (findCat(p.category_id).products || []).slice().sort(bySort);
+      const i = list.findIndex(x => x.id === id);
+      await reorder('products', list, i, i + (act === 'prod-up' ? -1 : 1));
+    }
+    else if (act === 'cat-up' || act === 'cat-down') {
+      const c = findCat(id), list = catsOf(c.screen), i = list.findIndex(x => x.id === c.id);
+      await reorder('categories', list, i, i + (act === 'cat-up' ? -1 : 1));
+    }
+  } catch (err) { toast(err.message, 'err'); render(); }
+});
+
+// ── hoja de producto ─────────────────────────────────────────────────────────
+let photo = null, photoUrl = null;   // estado de la foto que se está editando
+
+function catLabel(c) { return `${SCREENS[c.screen]} · ${c.screen === 'bebidas' && c.tab && c.tab !== c.name ? c.tab + ' · ' : ''}${c.name}`; }
+
+function prodSheet(prod, catId) {
+  const cur = prod ? findCat(prod.category_id) : findCat(catId);
+  photo = { blob: null, removed: false, orig: prod ? prod.image_url : null };
+  const options = ['entradas', 'principales', 'postres', 'bebidas'].flatMap(catsOf)
+    .map(c => `<option value="${c.id}">${esc(catLabel(c))}</option>`).join('');
+  openCard(`<h2>${prod ? 'Editar producto' : 'Nuevo producto'}</h2>
+    <form id="pf" novalidate>
+      <label class="f">Nombre<input type="text" name="name" maxlength="120" required autocomplete="off"></label>
+      <label class="f"><span>Descripción <span class="opt">(opcional)</span></span><textarea name="description" maxlength="300" rows="2"></textarea></label>
+      <label class="f">Precio (RD$)<input type="number" name="price" inputmode="decimal" min="0" step="any" required></label>
+      <label class="f">Categoría<select name="category_id">${options}</select></label>
+      <div id="photo-field" class="f" style="display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--green)">
+        Foto
+        <div class="photo">
+          <div class="ph-prev" id="ph-prev"></div>
+          <div class="ph-btns">
+            <label class="btn ghost small" for="ph-file" style="cursor:pointer">Subir foto</label>
+            <input type="file" id="ph-file" accept="image/*">
+            <button type="button" class="btn ghost small" id="ph-rm">Quitar foto</button>
+            <span class="ph-note" id="ph-note"></span>
+          </div>
+        </div>
+      </div>
+      <p class="hint" id="list-note" hidden>Esta categoría se muestra como lista simple (nombre y precio), por eso no usa fotos.</p>
+      <label class="sw"><input type="checkbox" name="available"><span>Disponible<small>Si lo desmarcas se muestra como “Agotado” y no se puede pedir.</small></span></label>
+      <label class="sw"><input type="checkbox" name="visible"><span>Visible en el menú<small>Desmárcalo para ocultarlo sin borrarlo.</small></span></label>
+      <div class="form-msg" id="pf-msg" role="alert"></div>
+      <div class="actions"><button type="button" class="btn ghost" id="pf-cancel">Cancelar</button><button type="submit" class="btn" id="pf-save">Guardar</button></div>
+      ${prod ? '<div class="link-row"><button type="button" class="btn danger" id="pf-del">Eliminar producto</button></div>' : ''}
+    </form>`);
+
+  const f = $('pf');
+  f.name.value = prod ? prod.name : '';
+  f.description.value = prod ? (prod.description || '') : '';
+  f.price.value = prod ? prod.price : '';
+  f.category_id.value = cur ? cur.id : '';
+  f.available.checked = prod ? prod.available !== false : true;
+  f.visible.checked = prod ? prod.visible !== false : true;
+
+  const paintPhoto = () => {
+    const src = photo.blob ? photoUrl : (photo.removed ? null : photo.orig);
+    $('ph-prev').innerHTML = src ? `<img src="${esc(src)}" alt="" onerror="this.remove()">` : ICON.food;
+    $('ph-rm').hidden = !src;
+    $('ph-note').textContent = photo.blob ? 'Foto lista para guardar' : '';
+  };
+  const syncLayout = () => {
+    const c = findCat(f.category_id.value), list = c && c.layout === 'list';
+    $('photo-field').hidden = list; $('list-note').hidden = !list;
+  };
+  paintPhoto(); syncLayout();
+  f.category_id.addEventListener('change', syncLayout);
+
+  $('ph-file').addEventListener('change', async ev => {
+    const file = ev.target.files[0]; if (!file) return;
+    $('ph-note').textContent = 'Procesando foto…';
+    try {
+      photo.blob = await compress(file); photo.removed = false;
+      if (photoUrl) URL.revokeObjectURL(photoUrl);
+      photoUrl = URL.createObjectURL(photo.blob);
+    } catch (err) { $('pf-msg').textContent = err.message; }
+    ev.target.value = ''; paintPhoto();
+  });
+  $('ph-rm').addEventListener('click', () => { photo.blob = null; photo.removed = true; paintPhoto(); });
+  $('pf-cancel').addEventListener('click', closeCard);
+  if (prod) $('pf-del').addEventListener('click', () => delProd(prod));
+
+  f.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const msg = $('pf-msg'), btn = $('pf-save');
+    msg.textContent = '';
+    const name = f.name.value.trim(), price = parseFloat(f.price.value);
+    if (!name) { msg.textContent = 'Escribe el nombre del producto.'; f.name.focus(); return; }
+    if (!isFinite(price) || price < 0) { msg.textContent = 'Escribe un precio válido (0 o más).'; f.price.focus(); return; }
+    const newCat = findCat(f.category_id.value);
+    if (!newCat) { msg.textContent = 'Elige una categoría.'; return; }
+
+    busy(btn, true);
+    let uploaded = null;
+    try {
+      let image_url = prod ? prod.image_url : null;
+      const usesPhoto = newCat.layout !== 'list';
+      if (photo.blob && usesPhoto) { uploaded = await uploadPhoto(photo.blob); image_url = uploaded; }
+      else if ((photo.removed || !usesPhoto) && image_url) image_url = null;
+
+      // el servidor decide el orden (al final de la categoría) y borra la foto vieja si se reemplazó
+      const row = { category_id: newCat.id, name, description: f.description.value.trim(), price, image_url, available: f.available.checked, visible: f.visible.checked };
+      if (prod) await api('PATCH', '/admin/products/' + prod.id, row);
+      else await api('POST', '/admin/products', row);
+      closeCard(); await load(); toast('Guardado');
+    } catch (err) {
+      if (uploaded) api('POST', '/admin/upload/discard', { url: uploaded }).catch(() => {});   // no dejar fotos huérfanas
+      msg.textContent = err.message; busy(btn, false);
+    }
+  });
+}
+
+async function delProd(prod) {
+  if (!(await ask('¿Eliminar producto?', `“${prod.name}” se borrará del menú. Esta acción no se puede deshacer.`, 'Eliminar'))) return;
+  try {
+    await api('DELETE', '/admin/products/' + prod.id);
+    await load(); toast('Producto eliminado');
+  } catch (err) { toast(err.message, 'err'); }
+}
+
+// ── hoja de categoría ────────────────────────────────────────────────────────
+function catSheet(cat) {
+  const tabs = [...new Set(S.cats.filter(c => c.screen === 'bebidas' && c.tab).map(c => c.tab))];
+  openCard(`<h2>${cat ? 'Editar categoría' : 'Nueva categoría'}</h2>
+    <form id="cf" novalidate>
+      <label class="f">Nombre<input type="text" name="name" maxlength="80" required autocomplete="off"></label>
+      <label class="f">Pantalla del menú
+        <select name="screen">${Object.entries(SCREENS).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select>
+      </label>
+      <label class="f" id="tab-row"><span>Pestaña de bebidas <span class="opt">(opcional)</span></span>
+        <input type="text" name="tab" maxlength="40" list="tab-list" autocomplete="off">
+        <datalist id="tab-list">${tabs.map(t => `<option value="${esc(t)}">`).join('')}</datalist>
+        <span class="hint">Las categorías con la misma pestaña aparecen juntas. Si lo dejas vacío, la pestaña se llama igual que la categoría.</span>
+      </label>
+      <label class="f">Formato
+        <select name="layout"><option value="cards">Tarjetas con foto</option><option value="list">Lista simple (nombre y precio)</option></select>
+      </label>
+      <div class="form-msg" id="cf-msg" role="alert"></div>
+      <div class="actions"><button type="button" class="btn ghost" id="cf-cancel">Cancelar</button><button type="submit" class="btn" id="cf-save">Guardar</button></div>
+      ${cat ? '<div class="link-row"><button type="button" class="btn danger" id="cf-del">Eliminar categoría</button></div>' : ''}
+    </form>`);
+  const f = $('cf');
+  f.name.value = cat ? cat.name : '';
+  f.screen.value = cat ? cat.screen : S.screen;
+  f.tab.value = cat && cat.tab ? cat.tab : '';
+  f.layout.value = cat ? cat.layout : 'cards';
+  const sync = () => { $('tab-row').hidden = f.screen.value !== 'bebidas'; };
+  sync(); f.screen.addEventListener('change', sync);
+  $('cf-cancel').addEventListener('click', closeCard);
+  if (cat) $('cf-del').addEventListener('click', () => delCat(cat));
+
+  f.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const msg = $('cf-msg'), btn = $('cf-save');
+    const name = f.name.value.trim();
+    if (!name) { msg.textContent = 'Escribe el nombre de la categoría.'; f.name.focus(); return; }
+    const row = { name, screen: f.screen.value, tab: f.screen.value === 'bebidas' ? (f.tab.value.trim() || null) : null, layout: f.layout.value };
+    busy(btn, true);
+    try {
+      if (cat) await api('PATCH', '/admin/categories/' + cat.id, row);
+      else await api('POST', '/admin/categories', row);
+      if (!cat) S.screen = row.screen;
+      closeCard(); await load(); toast('Guardado');
+    } catch (err) { msg.textContent = err.message; busy(btn, false); }
+  });
+}
+
+async function delCat(cat) {
+  const prods = cat.products || [], n = prods.length;
+  const text = n ? `Se eliminará “${cat.name}” junto con sus ${n} producto${n === 1 ? '' : 's'}. Esta acción no se puede deshacer.`
+                 : `Se eliminará la categoría “${cat.name}”.`;
+  if (!(await ask('¿Eliminar categoría?', text, 'Eliminar'))) return;
+  try {
+    await api('DELETE', '/admin/categories/' + cat.id);
+    await load(); toast('Categoría eliminada');
+  } catch (err) { toast(err.message, 'err'); }
+}
+
+// ── contraseña ───────────────────────────────────────────────────────────────
+$('chpw').addEventListener('click', () => {
+  openCard(`<h2>Cambiar contraseña</h2>
+    <form id="pw" novalidate>
+      <label class="f">Contraseña actual<input type="password" name="current" autocomplete="current-password" required></label>
+      <label class="f">Contraseña nueva<input type="password" name="next" autocomplete="new-password" minlength="8" required><span class="hint">Mínimo 8 caracteres.</span></label>
+      <label class="f">Repite la nueva<input type="password" name="again" autocomplete="new-password" required></label>
+      <div class="form-msg" id="pw-msg" role="alert"></div>
+      <div class="actions"><button type="button" class="btn ghost" id="pw-cancel">Cancelar</button><button type="submit" class="btn" id="pw-save">Cambiar</button></div>
+    </form>`);
+  const f = $('pw');
+  $('pw-cancel').addEventListener('click', closeCard);
+  f.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const msg = $('pw-msg'), btn = $('pw-save');
+    if (f.next.value.length < 8) { msg.textContent = 'La contraseña nueva debe tener al menos 8 caracteres.'; return; }
+    if (f.next.value !== f.again.value) { msg.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
+    busy(btn, true);
+    try { await api('POST', '/admin/password', { current: f.current.value, next: f.next.value }); closeCard(); toast('Contraseña cambiada'); }
+    catch (err) { msg.textContent = err.message; busy(btn, false); }
+  });
+});
+
+boot();
+</script>
+</body>
+</html>

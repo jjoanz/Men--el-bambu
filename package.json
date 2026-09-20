@@ -1,0 +1,19 @@
+{
+  "name": "bambu-menu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Menú de El Bambú: sitio estático + API (Node) + Postgres",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node server/server.js",
+    "create-admin": "node server/create-admin.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.4.0",
+    "pg": "^8.23.0"
+  }
+}
