@@ -10,6 +10,7 @@ const express = require('express');
 const multer = require('multer');
 const { Pool } = require('pg');
 const { hashPassword, verifyPassword } = require('./password');
+const mailer = require('./mailer');
 
 const PORT = +process.env.PORT || 3010;
 const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR || path.join(__dirname, 'uploads'));
@@ -193,6 +194,69 @@ app.post('/api/logout', async (req, res) => {
 
 app.get('/api/me', auth, (req, res) => res.json({ user: { username: req.user.username } }));
 
+// ── recuperar contraseña ─────────────────────────────────────────────────────
+// Nunca se envía la contraseña: se envía un enlace de un solo uso que vale 30 minutos.
+const RESET_MINUTES = 30;
+const resetAsks = new Map();   // límite de solicitudes (memoria: un solo proceso)
+function limited(key, max, windowMs = 3600_000) {
+  const now = Date.now(), a = resetAsks.get(key);
+  if (!a || now - a.first > windowMs) { resetAsks.set(key, { first: now, count: 1 }); return false; }
+  return ++a.count > max;
+}
+setInterval(() => { const now = Date.now(); for (const [k, a] of resetAsks) if (now - a.first > 3600_000) resetAsks.delete(k); }, 60_000).unref();
+
+async function sendReset(email) {
+  const { rows } = await pool.query('select id, username from admin_users where lower(username) = $1', [email]);
+  if (!rows[0]) return;   // sin cuenta: no se envía nada (y quien pidió no lo sabe)
+  const token = crypto.randomBytes(32).toString('base64url');
+  await pool.query('delete from password_resets where user_id = $1 or expires_at < now()', [rows[0].id]);
+  await pool.query(`insert into password_resets (token_hash, user_id, expires_at) values ($1, $2, now() + $3 * interval '1 minute')`,
+    [sha256(token), rows[0].id, RESET_MINUTES]);
+  const link = `${mailer.siteUrl()}/admin.html#reset=${token}`;
+  await mailer.sendMail({
+    to: rows[0].username,
+    subject: 'Crea una contraseña nueva · Panel El Bambú',
+    text: `Recibimos una solicitud para cambiar la contraseña del panel de El Bambú.\n\n` +
+          `Abre este enlace para crear una contraseña nueva (vale ${RESET_MINUTES} minutos y solo se puede usar una vez):\n${link}\n\n` +
+          `Si no fuiste tú, ignora este correo: tu contraseña actual sigue igual.`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:480px;margin:auto;color:#1e3d1a">` +
+          `<h2 style="margin:0 0 12px">Panel El Bambú</h2>` +
+          `<p>Recibimos una solicitud para cambiar la contraseña del panel.</p>` +
+          `<p><a href="${link}" style="display:inline-block;background:#3a6b35;color:#fff;text-decoration:none;padding:12px 22px;border-radius:30px;font-weight:bold">Crear contraseña nueva</a></p>` +
+          `<p style="font-size:13px;color:#555">El enlace vale ${RESET_MINUTES} minutos y solo se puede usar una vez.<br>Si no fuiste tú, ignora este correo: tu contraseña actual sigue igual.</p></div>`,
+  });
+}
+
+app.post('/api/forgot', async (req, res) => {
+  if (!mailer.isConfigured()) throw new HttpError(503, 'El envío de correos todavía no está configurado en el servidor.');
+  const email = String(req.body?.email || '').trim().toLowerCase().slice(0, 200);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw bad('Escribe tu correo.');
+  if (limited('ip:' + req.ip, 10) || limited('e:' + email, 3)) throw new HttpError(429, 'Demasiadas solicitudes. Intenta de nuevo en una hora.');
+  res.json({ ok: true });   // misma respuesta exista o no la cuenta: no se puede usar para averiguar correos
+  try { await sendReset(email); } catch (e) { console.error('[forgot] no se pudo enviar:', e.message); }
+});
+
+app.post('/api/reset', async (req, res) => {
+  const token = String(req.body?.token || '');
+  const password = req.body?.password;
+  if (!/^[A-Za-z0-9_-]{20,100}$/.test(token)) throw bad('El enlace no es válido.');
+  if (typeof password !== 'string' || password.length < 8 || password.length > 200) throw bad('La contraseña nueva debe tener al menos 8 caracteres.');
+  if (limited('r:' + req.ip, 20)) throw new HttpError(429, 'Demasiados intentos. Intenta de nuevo en una hora.');
+  const hash = await hashPassword(password);
+  const client = await pool.connect();
+  try {
+    await client.query('begin');
+    // borrar-y-devolver consume el enlace de forma atómica: sirve una sola vez
+    const { rows } = await client.query('delete from password_resets where token_hash = $1 and expires_at > now() returning user_id', [sha256(token)]);
+    if (!rows[0]) { await client.query('rollback'); throw new HttpError(400, 'El enlace venció o ya se usó. Pide uno nuevo.'); }
+    await client.query('update admin_users set password_hash = $1 where id = $2', [hash, rows[0].user_id]);
+    await client.query('delete from sessions where user_id = $1', [rows[0].user_id]);
+    await client.query('delete from password_resets where user_id = $1', [rows[0].user_id]);
+    await client.query('commit');
+  } catch (e) { await client.query('rollback').catch(() => {}); throw e; } finally { client.release(); }
+  res.json({ ok: true });
+});
+
 // ── administración (requiere sesión) ─────────────────────────────────────────
 const admin = express.Router();
 admin.use(auth);
@@ -320,7 +384,10 @@ app.use((err, req, res, next) => {   // eslint-disable-line no-unused-vars
   res.status(500).json({ error: 'Error interno. Intenta de nuevo.' });
 });
 
-setInterval(() => pool.query('delete from sessions where expires_at < now()').catch(() => {}), 3600_000).unref();
+setInterval(() => {
+  pool.query('delete from sessions where expires_at < now()').catch(() => {});
+  pool.query('delete from password_resets where expires_at < now()').catch(() => {});
+}, 3600_000).unref();
 
 const server = app.listen(PORT, '127.0.0.1', () => console.log(`Bambú API en http://127.0.0.1:${PORT}`));
 for (const sig of ['SIGTERM', 'SIGINT']) process.on(sig, () => server.close(() => pool.end().then(() => process.exit(0))));

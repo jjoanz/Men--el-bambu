@@ -12,7 +12,7 @@ Navegador ──HTTPS──> nginx ──> /            sitio estático (index.h
 |---|---|
 | `index.html` | Menú público. Lee `/api/menu`; si falla usa la última copia guardada en el dispositivo y, en su defecto, `menu-fallback.js` |
 | `admin.html` | Panel (login por usuario y contraseña) |
-| `server/` | API en Node/Express (`server.js`), hash de contraseñas (`password.js`) y `create-admin.js` |
+| `server/` | API en Node/Express (`server.js`), contraseñas (`password.js`), correo (`mailer.js`) y `create-admin.js` |
 | `db/` | `schema.sql` (tablas) y `seed.sql` (los 174 productos originales) |
 | `deploy/` | `setup-server.sh` (instalación en el VPS, una vez) y `deploy.sh` (actualizaciones) |
 | `menu-fallback.js` | Copia estática del menú (respaldo de emergencia, no se actualiza sola) |
@@ -24,13 +24,25 @@ Navegador ──HTTPS──> nginx ──> /            sitio estático (index.h
 - Las fotos se reducen a ~1200 px (JPEG) en el navegador antes de subirse; el servidor valida que sean imágenes reales.
 - Seguridad: sesión en cookie `HttpOnly + Secure + SameSite=Strict`, contraseñas con scrypt, límite de intentos de login, escritura solo con sesión y consultas SQL parametrizadas. Postgres solo escucha en `localhost`.
 
+## Acceso y recuperación de contraseña
+- El administrador entra con su **correo** y su contraseña. Para crear o cambiar un administrador (en el servidor, como `bambu`):
+  `node server/create-admin.js correo@ejemplo.com <clave>` (mínimo 8 caracteres).
+- **¿Olvidaste tu contraseña?** en la pantalla de acceso envía por correo un **enlace de un solo uso que vale 30 minutos**
+  (nunca se envía la contraseña). La respuesta es la misma exista o no la cuenta, y hay límite de solicitudes por hora.
+- El correo se envía desde el propio servidor, firmado con DKIM, o a través de un proveedor SMTP. Se configura en
+  `/var/lib/bambu/smtp.json` (ver los dos formatos en `server/mailer.js`). En el modo directo el DNS del dominio necesita:
+  - **SPF** (TXT en `@`): `v=spf1 ip4:<IP del servidor> ~all`
+  - **DKIM** (TXT en `mail._domainkey`): `v=DKIM1; k=rsa; p=<clave pública>`; la clave privada está en `/var/lib/bambu/dkim.key`
+  - **DMARC** (TXT en `_dmarc`): `v=DMARC1; p=none`
+  Si un correo llegara a la carpeta de no deseados, marcarlo como "no es spam" una vez suele bastar.
+
 ## Instalación en el VPS (una sola vez)
 Requisitos: Ubuntu con nginx, Postgres, Node 20 y certbot; un dominio apuntando al servidor.
 
 1. Crear el usuario `bambu` y autorizar la llave SSH de despliegue (sin privilegios de root).
 2. `deploy/deploy.sh` sube el código; luego, como root en el servidor:
    `DOMAINS="menu.midominio.com" /root/setup-server.sh` (sin `DOMAINS` usa `elbamburestaurante.com`)
-   (crea base y rol `bambu`/`bambu_db`, servicio `bambu-api`, sitio nginx, HTTPS, respaldos diarios y el usuario `admin` con una clave aleatoria que imprime una sola vez).
+   (crea base y rol `bambu`/`bambu_db`, servicio `bambu-api`, sitio nginx, HTTPS, respaldos diarios y el usuario `admin` con una clave aleatoria que imprime una sola vez; después conviene crear el administrador real con `create-admin.js` y borrar `admin`).
 3. Entrar a `https://<dominio>/admin.html`, y cambiar la contraseña desde el propio panel.
 
 ## Actualizar

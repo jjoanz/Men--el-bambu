@@ -51,6 +51,15 @@ create table if not exists sessions (
 );
 create index if not exists sessions_expires_idx on sessions (expires_at);
 
+-- Enlaces de "olvidé mi contraseña": de un solo uso, vencen a los 30 min (aquí solo se guarda su hash)
+create table if not exists password_resets (
+  token_hash text primary key,
+  user_id    integer not null references admin_users (id) on delete cascade,
+  expires_at timestamptz not null,
+  created_at timestamptz not null default now()
+);
+create index if not exists password_resets_expires_idx on password_resets (expires_at);
+
 create or replace function touch_updated_at() returns trigger
 language plpgsql as $$
 begin

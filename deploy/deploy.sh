@@ -16,8 +16,8 @@ echo "==> API y SQL      -> /opt/bambu"
 $SSH 'rm -rf /opt/bambu/server /opt/bambu/db'
 tar czf - package.json package-lock.json server db | $SSH 'tar xzf - -C /opt/bambu'
 
-echo "==> Dependencias y reinicio"
-$SSH 'cd /opt/bambu && npm ci --omit=dev --no-audit --no-fund 2>&1 | tail -1 && sudo systemctl restart bambu-api'
+echo "==> Dependencias, tablas y reinicio"
+$SSH 'cd /opt/bambu && npm ci --omit=dev --no-audit --no-fund 2>&1 | tail -1 && set -a && . /etc/bambu/bambu.env && set +a && psql "$DATABASE_URL" -q -v ON_ERROR_STOP=1 -f db/schema.sql 2>&1 | grep -v NOTICE; sudo systemctl restart bambu-api'
 sleep 2
 $SSH 'curl -fsS http://127.0.0.1:3010/api/health' && echo
 echo "Listo."

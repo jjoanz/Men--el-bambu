@@ -127,6 +127,7 @@
   .ph-btns input[type=file] { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
   .ph-note { font-size:12px; color:var(--muted); font-weight:400; text-transform:none; letter-spacing:0; }
 
+  .linkbtn { background:none; border:none; color:var(--green); font-size:13px; text-decoration:underline; padding:6px; align-self:center; }
   .foot { text-align:center; margin-top:28px; }
   .foot button { background:none; border:none; color:var(--muted); font-size:12px; text-decoration:underline; padding:8px; }
 
@@ -146,10 +147,11 @@
     <h1>Panel <em>Bambú</em></h1>
     <p class="sub">Administra los productos de tu menú</p>
     <form id="login-form" autocomplete="on">
-      <label class="f">Usuario<input type="text" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+      <label class="f">Correo<input type="email" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
       <label class="f">Contraseña<input type="password" name="password" autocomplete="current-password" required></label>
       <div class="form-msg" id="login-msg" role="alert"></div>
       <button class="btn" type="submit" id="login-btn">Entrar</button>
+      <button class="linkbtn" type="button" id="forgot">¿Olvidaste tu contraseña?</button>
     </form>
   </div>
 </div>
@@ -255,7 +257,18 @@ async function api(method, path, body) {
   return data;
 }
 
+// enlace del correo de recuperación: admin.html#reset=<token>  (se quita de la barra de direcciones al leerlo)
+function checkResetLink() {
+  const m = /^#reset=([A-Za-z0-9_-]+)$/.exec(location.hash);
+  if (!m) return false;
+  history.replaceState(null, '', location.pathname);
+  showLogin(''); resetSheet(m[1]);
+  return true;
+}
+window.addEventListener('hashchange', checkResetLink);   // por si se abre el enlace en una pestaña que ya tiene el panel
+
 async function boot() {
+  if (checkResetLink()) return;
   try { await api('GET', '/me'); }
   catch { showLogin(''); return; }
   await enter();
@@ -582,6 +595,56 @@ async function delCat(cat) {
     await api('DELETE', '/admin/categories/' + cat.id);
     await load(); toast('Categoría eliminada');
   } catch (err) { toast(err.message, 'err'); }
+}
+
+// ── recuperar contraseña ─────────────────────────────────────────────────────
+$('forgot').addEventListener('click', () => forgotSheet());
+
+function forgotSheet() {
+  openCard(`<h2>Recuperar contraseña</h2>
+    <form id="fg" novalidate>
+      <p class="txt" style="margin:0">Escribe el correo del administrador y te enviaremos un enlace para crear una contraseña nueva.</p>
+      <label class="f">Correo<input type="email" name="email" autocomplete="email" autocapitalize="none" spellcheck="false" required></label>
+      <div class="form-msg" id="fg-msg" role="alert"></div>
+      <div class="actions"><button type="button" class="btn ghost" id="fg-cancel">Cancelar</button><button type="submit" class="btn" id="fg-send">Enviar enlace</button></div>
+    </form>`);
+  const f = $('fg');
+  f.email.value = $('login-form').username.value.trim();
+  $('fg-cancel').addEventListener('click', closeCard);
+  f.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const msg = $('fg-msg'), btn = $('fg-send'), email = f.email.value.trim();
+    msg.textContent = '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.textContent = 'Escribe tu correo completo.'; f.email.focus(); return; }
+    busy(btn, true, 'Enviando…');
+    try {
+      await api('POST', '/forgot', { email });
+      $('card').innerHTML = `<h2>Revisa tu correo</h2>
+        <p class="txt">Si <b>${esc(email)}</b> está registrado, te enviamos un enlace para crear una contraseña nueva. Vale 30 minutos y solo se puede usar una vez. Si no lo ves, revisa la carpeta de correo no deseado.</p>
+        <div class="actions"><button type="button" class="btn" id="fg-ok">Entendido</button></div>`;
+      $('fg-ok').addEventListener('click', closeCard);
+    } catch (err) { msg.textContent = err.message; busy(btn, false); }
+  });
+}
+
+function resetSheet(token) {
+  openCard(`<h2>Crea tu contraseña nueva</h2>
+    <form id="rs" novalidate>
+      <label class="f">Contraseña nueva<input type="password" name="next" autocomplete="new-password" minlength="8" required><span class="hint">Mínimo 8 caracteres.</span></label>
+      <label class="f">Repítela<input type="password" name="again" autocomplete="new-password" required></label>
+      <div class="form-msg" id="rs-msg" role="alert"></div>
+      <div class="actions"><button type="submit" class="btn" id="rs-save">Guardar contraseña</button></div>
+    </form>`);
+  const f = $('rs');
+  f.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const msg = $('rs-msg'), btn = $('rs-save');
+    if (f.next.value.length < 8) { msg.textContent = 'La contraseña debe tener al menos 8 caracteres.'; return; }
+    if (f.next.value !== f.again.value) { msg.textContent = 'Las contraseñas no coinciden.'; return; }
+    busy(btn, true);
+    try { await api('POST', '/reset', { token, password: f.next.value }); closeCard(); showLogin(''); toast('Contraseña cambiada. Ya puedes entrar con la nueva.'); }
+    catch (err) { msg.textContent = err.message; busy(btn, false); }
+  });
 }
 
 // ── contraseña ───────────────────────────────────────────────────────────────
